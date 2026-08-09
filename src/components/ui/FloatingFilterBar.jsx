@@ -9,7 +9,7 @@ export default function FloatingFilterBar() {
 
   return (
     <div className="floating-filter-bar" role="status">
-      <span className="floating-filter-bar__label">Filtering by</span>
+      <span className="floating-filter-bar__label">Showing entries for these filters: </span>
 
       <div className="floating-filter-bar__chips">
         {searchQuery.trim() && (

@@ -52,8 +52,8 @@ src/
                     sections that actually do the filtering.
   config/          cursorEffect.js — the one-line switch for which
                     pointer-interactive dot-grid effect is active.
-  hooks/            Small reusable hooks (scrollspy, scroll-reveal, cursor
-                    spotlight, light/dark theme, etc.)
+  hooks/            Small reusable hooks (scrollspy, scroll-reveal,
+                    light/dark theme, etc.)
   utils/            Small pure helpers (smooth-scroll-to-id, cursor-effect
                     physics, etc.)
   components/
@@ -87,6 +87,18 @@ load. If no preference is stored yet, it falls back to the OS-level
 `src/styles/tokens.css` — add new colors as tokens there (in both the
 `:root` and `:root[data-theme="light"]` blocks) rather than hardcoding hex
 values in component CSS, so they stay theme-aware.
+
+### Persistent footer
+
+`Footer.jsx` is `position: fixed` to the bottom of the viewport (mirrors
+the sticky navbar at the top), so contact/social links stay reachable
+from anywhere on the page. That means it's pulled out of normal document
+flow, so a few things stay in sync via one shared `--footer-height` token
+in `tokens.css` (bumped in a mobile media query, since the footer wraps
+to two lines on narrow screens): `body`'s bottom padding (`base.css`)
+reserves space so the last section doesn't render underneath it, and
+`FloatingFilterBar`'s `bottom` offset (`components.css`) is calculated
+from it so the two fixed elements never overlap.
 
 ### Interactive cursor effects
 
@@ -129,7 +141,9 @@ keeps working unchanged.
 ### How the skill filtering and search work
 
 - Hovering a skill tag shows a small card previewing every role/project
-  that uses it (built from `contentService.getReferencesForSkill`).
+  that uses it (built from `contentService.getReferencesForSkill`), listed
+  chronologically — most recent experience first, then projects — with no
+  other resorting.
 - Clicking a skill toggles it on as an active filter. Multiple skills can
   be active at once; a job or project stays visible if it matches *any*
   active skill (OR, not AND), since with only a handful of entries an AND

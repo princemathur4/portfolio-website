@@ -23,11 +23,15 @@ const PALETTE = [
     return PALETTE[hash % PALETTE.length];
   }
   
+  /** Turns any #rrggbb hex value into an [r, g, b] tuple. */
+  export function hexToRgbTuple(hex) {
+    const clean = hex.trim();
+    return [parseInt(clean.slice(1, 3), 16), parseInt(clean.slice(3, 5), 16), parseInt(clean.slice(5, 7), 16)];
+  }
+
   /** Turns any #rrggbb hex value into an rgba() string at the given alpha. */
   export function hexToRgba(hex, alpha = 0.16) {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
+    const [r, g, b] = hexToRgbTuple(hex);
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 

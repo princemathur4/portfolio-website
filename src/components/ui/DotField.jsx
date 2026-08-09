@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { CURSOR_EFFECT } from "../../config/cursorEffect.js";
 import { CURSOR_EFFECTS } from "../../utils/cursorEffects.js";
+import { hexToRgbTuple } from "../../utils/skillColor.js";
 
 const SPACING = 26;
 const DOT_RADIUS = 1.1;
@@ -9,11 +10,6 @@ function parseDotColor(raw) {
   const nums = (raw.match(/[\d.]+/g) || []).map(Number);
   const [r = 154, g = 164, b = 178, a = 0.28] = nums;
   return { r, g, b, a };
-}
-
-function hexToRgbTuple(hex) {
-  const clean = hex.trim();
-  return [parseInt(clean.slice(1, 3), 16), parseInt(clean.slice(3, 5), 16), parseInt(clean.slice(5, 7), 16)];
 }
 
 /**

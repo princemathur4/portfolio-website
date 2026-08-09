@@ -27,7 +27,30 @@ export function useActiveSection(sectionIds) {
       if (el) observer.observe(el);
     });
 
-    return () => observer.disconnect();
+    // The observer's shrunk rootMargin band can miss the last section once
+    // the page hits its true max scroll — especially here, where the fixed
+    // footer covers part of the viewport — so back it up with an explicit
+    // "scrolled to the bottom" check that forces the last section active.
+    const lastId = sectionIds[sectionIds.length - 1];
+    let frameId = null;
+
+    function handleScroll() {
+      if (frameId) return;
+      frameId = requestAnimationFrame(() => {
+        frameId = null;
+        const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+        if (atBottom) setActiveId(lastId);
+      });
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+      if (frameId) cancelAnimationFrame(frameId);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sectionIds.join(",")]);
 

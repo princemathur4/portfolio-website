@@ -44,29 +44,23 @@ function stackIncludes(stack = [], skillLabel) {
   return stack.some((tag) => tag.toLowerCase() === needle);
 }
 
-function hasSkillInPoints(points = [], skillLabel) {
-  const needle = skillLabel.trim().toLowerCase();
-  return points.some((point) => (point.skills || []).some((s) => s.toLowerCase() === needle));
-}
-
 /**
  * Finds every experience/project entry whose `stack` array includes the
  * given skill label (case-insensitive), so the skills bar can preview and
  * filter to real content without a second, manually-maintained mapping.
  *
- * Entries where the skill is backed by an actual tagged bullet/highlight
- * (not just a broader stack-level mention) sort first, on the theory that
- * "I have a specific example of this" is a more relevant match than "this
- * was part of the toolkit". Ties keep their original (reverse-chronological)
- * order, since Array#sort is stable.
+ * Default order is chronological \u2014 experience first (most recent role
+ * first, since that's how `data/experience.js` is already authored), then
+ * projects in their declared order \u2014 with no other implicit resorting.
+ * `.filter()` preserves each source array's original order, so this falls
+ * out for free; if a future entry ever needs to jump the queue, that's an
+ * explicit reorder in the data file, not sorting logic here.
  *
  * Returns an array of:
  *   { type: 'experience' | 'project', id, title, subtitle, excerpt, anchorId }
  * `subtitle` and `excerpt` exist to populate the hover-card preview.
  */
 export async function getReferencesForSkill(skillLabel) {
-  const byDetailFirst = (a, b) => Number(b.hasDetail) - Number(a.hasDetail);
-
   const experienceMatches = experience
     .filter((job) => stackIncludes(job.stack, skillLabel))
     .map((job) => ({
@@ -76,9 +70,7 @@ export async function getReferencesForSkill(skillLabel) {
       subtitle: `${job.company} \u00b7 ${job.dateRange}`,
       excerpt: job.summary,
       anchorId: `exp-${job.id}`,
-      hasDetail: hasSkillInPoints(job.bullets, skillLabel),
-    }))
-    .sort(byDetailFirst);
+    }));
 
   const projectMatches = projects
     .filter((project) => stackIncludes(project.stack, skillLabel))
@@ -89,9 +81,7 @@ export async function getReferencesForSkill(skillLabel) {
       subtitle: project.tagline,
       excerpt: project.description,
       anchorId: `proj-${project.id}`,
-      hasDetail: hasSkillInPoints(project.highlights, skillLabel),
-    }))
-    .sort(byDetailFirst);
+    }));
 
   return [...experienceMatches, ...projectMatches];
 }
@@ -151,51 +141,4 @@ export function entryMatchesSearch(entry, type, query) {
   const trimmed = (query || "").trim().toLowerCase();
   if (!trimmed) return true;
   return fieldsForSearch(entry, type).some((field) => (field || "").toLowerCase().includes(trimmed));
-}
-
-/**
- * Full-text search across experience and projects. Not currently called
- * by any component (the search bar filters Experience/Projects directly
- * via entryMatchesSearch instead), kept here as a ready-made snippet
- * source if you want a dropdown-style results list later.
- *
- * Returns an array of:
- *   { type, id, title, subtitle, snippet, anchorId }
- */
-export async function searchContent(query) {
-  const trimmed = (query || "").trim().toLowerCase();
-  if (!trimmed) return [];
-
-  const buildSnippet = (fields) => {
-    const match = fields.find((field) => (field || "").toLowerCase().includes(trimmed));
-    if (!match) return "";
-    const index = match.toLowerCase().indexOf(trimmed);
-    const start = Math.max(0, index - 40);
-    const end = Math.min(match.length, index + trimmed.length + 60);
-    return `${start > 0 ? "\u2026" : ""}${match.slice(start, end)}${end < match.length ? "\u2026" : ""}`;
-  };
-
-  const experienceResults = experience
-    .filter((job) => entryMatchesSearch(job, "experience", trimmed))
-    .map((job) => ({
-      type: "experience",
-      id: job.id,
-      title: job.role,
-      subtitle: job.company,
-      snippet: buildSnippet(fieldsForSearch(job, "experience")),
-      anchorId: `exp-${job.id}`,
-    }));
-
-  const projectResults = projects
-    .filter((project) => entryMatchesSearch(project, "project", trimmed))
-    .map((project) => ({
-      type: "project",
-      id: project.id,
-      title: project.name,
-      subtitle: project.tagline,
-      snippet: buildSnippet(fieldsForSearch(project, "project")),
-      anchorId: `proj-${project.id}`,
-    }));
-
-  return [...experienceResults, ...projectResults];
 }

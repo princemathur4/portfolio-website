@@ -159,6 +159,7 @@ const experience = [
       "Cursor",
       "LLM Integration",
       "REST API Design",
+      "Code Reviews"
     ],
     builtProject: {
       name: "Scaler Neovarsity",
@@ -231,6 +232,7 @@ const experience = [
       "Technical Mentorship",
       "Unit Testing",
       "NLP",
+      "Code Reviews"
     ],
     builtProject: {
       name: "Romulus and Robana",

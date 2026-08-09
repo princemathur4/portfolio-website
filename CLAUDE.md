@@ -37,11 +37,19 @@ When adding a new skill/job/project, follow the existing object shape in the rel
 
 Multiple active skills are OR'd (any match keeps an entry visible), and search + skill filters combine with AND. When `toggleSkill` activates a skill, it also flashes a highlight and auto-scrolls to the first matching card (see `flashHighlight`/`HIGHLIGHT_DURATION_MS` in `FilterContext.jsx`).
 
+`getReferencesForSkill` (the hover-card preview list) orders results chronologically — experience first (most recent role first, since `data/experience.js` is already authored that way), then projects — by relying on `.filter()` preserving each source array's original order. There's no secondary "relevance" sort; if an entry needs to jump the queue, reorder it in the data file rather than adding sorting logic back here.
+
 Each skill gets a deterministic color from `utils/skillColor.js` (hash of the label → fixed palette), reused consistently for that skill's active chip, checkmark, and inline text highlight.
 
 ### Page structure and section order
 
 `App.jsx` renders sections in a fixed order: `Navbar → Hero → About → SkillsBar → Experience → Projects → Education → Contact → Footer`, plus a `FilterProvider` wrapping everything and a fixed `FloatingFilterBar`. Hero is the "who I am" section (summary, quick links, contact, resume) — skills/filtering intentionally comes after About, not before it. `Navbar`'s `NAV_LINKS` array and `useActiveSection` (IntersectionObserver-based scrollspy) should stay in sync with the actual section `id`s if sections are reordered or renamed.
+
+`useActiveSection`'s IntersectionObserver uses a shrunk `rootMargin` band to decide the "active" section, which can never fire for the last section once the page hits its true max scroll (there's no more content to scroll into that band, and the fixed footer covers part of the viewport besides). It's backed by an explicit `window.scrollY`-based "am I at the bottom" check that forces `sectionIds[sectionIds.length - 1]` active in that case — so `NAV_LINKS`'s last entry is implicitly "whatever should be active at the bottom of the page," not just cosmetically last in the list.
+
+### Persistent footer
+
+`Footer.jsx` is `position: fixed` to the bottom of the viewport (mirrors the sticky navbar), pulling it out of normal document flow. Three files stay in sync via one `--footer-height` token in `tokens.css` (bumped in a mobile media query, since the footer wraps to two lines on narrow screens): `body`'s bottom padding in `base.css` reserves space so the last section doesn't render underneath it, and `.floating-filter-bar`'s `bottom` offset in `components.css` is calculated from it so the two fixed elements never overlap. Change `--footer-height` first if the footer's content/height changes, rather than hand-tuning the other two.
 
 ### Interactive dot-grid background
 
@@ -54,7 +62,7 @@ The dotted background behind the whole page can render two ways, switched by a s
 
 `src/styles/tokens.css` defines CSS custom properties for both dark (default, on `:root`) and light (`:root[data-theme="light"]`) themes — colors, effect/glow colors, fonts, spacing. `useTheme.js` toggles the `data-theme` attribute on `<html>` and persists the choice to `localStorage` (`ThemeToggle.jsx` in the navbar calls it); an inline script in `index.html` stamps the attribute before React mounts to avoid a flash of the wrong theme. When adding new colors, prefer adding a token in both blocks of `tokens.css` over hardcoding a hex/rgba value in component CSS, so it stays theme-aware.
 
-CSS is split by concern and all imported in `main.jsx` in this order: `tokens.css` (variables) → `base.css` (resets/global) → `layout.css` (navbar/footer) → `components.css` (buttons, cards, tags, pills — reusable pieces) → `sections.css` (per-section layout, one block per section) → `effects.css` (cursor-follow glow, spotlight-card, scroll-reveal animations).
+CSS is split by concern and all imported in `main.jsx` in this order: `tokens.css` (variables) → `base.css` (resets/global) → `layout.css` (navbar/footer) → `components.css` (buttons, cards, tags, pills — reusable pieces) → `sections.css` (per-section layout, one block per section) → `effects.css` (cursor-follow glow, card hover, scroll-reveal animations).
 
 ### Not yet wired up
 

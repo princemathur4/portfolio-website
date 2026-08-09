@@ -266,7 +266,11 @@ mark.mark-skill {
   color: var(--color-amber);
 }
 
-/* Floating filter bar - stays visible while scrolling once a filter is active */
+/* Floating filter bar - stays visible while scrolling once a filter is
+   active (it's never rendered otherwise, see FloatingFilterBar.jsx). The
+   amber glow reinforces that "filters are active" state, matching the
+   amber used everywhere else an active filter shows up (skill-tag,
+   filter-chip, checkmark). */
 .floating-filter-bar {
   position: fixed;
   left: 50%;
@@ -278,10 +282,10 @@ mark.mark-skill {
   gap: 12px;
   max-width: calc(100vw - 32px);
   background: var(--color-surface-alt);
-  border: 1px solid var(--color-hairline);
+  border: 1px solid color-mix(in srgb, var(--color-amber) 45%, transparent);
   border-radius: 999px;
   padding: 8px 10px 8px 16px;
-  box-shadow: 0 16px 40px var(--shadow-color);
+  box-shadow: 0 16px 40px var(--shadow-color), 0 0 20px 2px color-mix(in srgb, var(--color-amber) 40%, transparent);
   font-family: var(--font-mono);
 }
 
