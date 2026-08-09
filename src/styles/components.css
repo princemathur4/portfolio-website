@@ -1,0 +1,348 @@
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 11px 20px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  border: 1px solid var(--color-hairline);
+  transition: transform 0.2s var(--ease-standard), border-color 0.2s var(--ease-standard),
+    background 0.2s var(--ease-standard);
+  cursor: pointer;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: var(--color-amber);
+  color: var(--color-amber-ink);
+  border-color: var(--color-amber);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 10px 24px rgba(232, 178, 77, 0.32);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-text-primary);
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-teal);
+  box-shadow: 0 10px 22px rgba(89, 195, 180, 0.18);
+}
+
+/* Skill tag (interactive, in the top skills bar) */
+.skill-tag {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-hairline);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease-standard), color 0.2s var(--ease-standard),
+    background 0.2s var(--ease-standard), transform 0.2s var(--ease-standard);
+}
+
+.skill-tag:hover,
+.skill-tag:focus-visible {
+  transform: translateY(-1px);
+}
+
+.skill-tag.is-active {
+  font-weight: 600;
+}
+
+.skill-tag__check {
+  margin-left: 6px;
+  color: var(--color-amber);
+}
+
+/* Hover-card preview, shows where a skill is used before you click it */
+.skill-tag__card {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 14px 34px var(--shadow-color);
+  z-index: 30;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skill-tag__card-title {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.skill-tag__card-count {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.skill-tag__card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.skill-tag__card-item {
+  display: flex;
+  flex-direction: column;
+  border-left: 2px solid var(--color-teal);
+  padding-left: 8px;
+}
+
+.skill-tag__card-item-title {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.skill-tag__card-item-subtitle {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--color-text-secondary);
+}
+
+.skill-tag__card-more {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.skill-tag__card-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-amber);
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 8px;
+}
+
+/* Text match highlight, used when a search query matches part of a field */
+mark {
+  background: rgba(232, 178, 77, 0.35);
+  color: var(--color-text-primary);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+/* Per-skill colored highlight, used when an active skill filter is
+   mentioned by name inside a bullet/highlight's text. */
+mark.mark-skill {
+  background: var(--mark-color);
+  color: var(--color-amber-ink);
+}
+
+/* Empty state when filters/search leave nothing to show */
+.empty-state {
+  border: 1px dashed var(--color-hairline);
+  border-radius: var(--radius-lg);
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Static stack pill (shown inside experience/project cards) */
+.pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 9px;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Cards */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  transition: box-shadow 0.35s var(--ease-standard), border-color 0.35s var(--ease-standard),
+    background-color 0.3s var(--ease-standard);
+}
+
+.card.is-highlighted {
+  border-color: var(--color-amber);
+  box-shadow: 0 0 0 1px var(--color-amber), 0 12px 30px rgba(232, 178, 77, 0.12);
+  animation: card-pulse 1.4s var(--ease-standard);
+}
+
+@keyframes card-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(232, 178, 77, 0.35);
+  }
+  60% {
+    box-shadow: 0 0 0 10px rgba(232, 178, 77, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(232, 178, 77, 0);
+  }
+}
+
+/* External link icon-text */
+.external-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--color-teal);
+  text-decoration: none;
+}
+
+.external-link:hover {
+  text-decoration: underline;
+}
+
+/* Media placeholder (used when a project has no screenshot yet) */
+.media-placeholder {
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-hairline);
+  background: linear-gradient(135deg, var(--color-surface-alt), var(--color-surface));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Avatar / initials mark */
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 1px solid var(--color-hairline);
+  object-fit: cover;
+}
+
+.avatar-fallback {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 1px solid var(--color-hairline);
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--color-amber);
+}
+
+/* Floating filter bar - stays visible while scrolling once a filter is active */
+.floating-filter-bar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--footer-height) + 14px);
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: calc(100vw - 32px);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-hairline);
+  border-radius: 999px;
+  padding: 8px 10px 8px 16px;
+  box-shadow: 0 16px 40px var(--shadow-color);
+  font-family: var(--font-mono);
+}
+
+.floating-filter-bar__label {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.floating-filter-bar__chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  max-width: 50vw;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: rgba(232, 178, 77, 0.14);
+  border: 1px solid var(--color-amber);
+  color: var(--color-text-primary);
+  border-radius: 999px;
+  padding: 5px 10px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.filter-chip--search {
+  background: rgba(89, 195, 180, 0.14);
+  border-color: var(--color-teal);
+}
+
+.floating-filter-bar__reset {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-bg);
+  background: var(--color-text-primary);
+  border: none;
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s var(--ease-standard);
+}
+
+.floating-filter-bar__reset:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+  .floating-filter-bar {
+    left: 16px;
+    right: 16px;
+    transform: none;
+    max-width: none;
+  }
+  .floating-filter-bar__chips {
+    max-width: none;
+  }
+}

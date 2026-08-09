@@ -1,0 +1,106 @@
+/* ---------- Dot grid background ---------- */
+.dot-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+  background-size: 26px 26px;
+  background-position: -13px -13px;
+  pointer-events: none;
+  transition: background-image 0.3s var(--ease-standard);
+}
+
+/* ---------- Interactive dot field (canvas) ----------
+   Renders in place of .dot-grid whenever config/cursorEffect.js picks an
+   interactive mode; see components/ui/DotField.jsx. */
+.dot-field {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  display: block;
+}
+
+/* Renders in place of .dot-grid / .dot-field when CURSOR_EFFECT is
+   "tubes"; see components/ui/TubesCursor.jsx. This wrapper is what gives
+   the canvas inside it a real, viewport-sized parent to measure — the
+   library sizes its renderer off canvas.parentElement, not the canvas's
+   own styles. */
+.tubes-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tubes-cursor canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Cursor-follow glow ----------
+   A soft vignette that gently DARKENS the page away from the cursor,
+   instead of brightening the area under it. That keeps whatever you're
+   actually reading at normal contrast (light text stays easy to read)
+   while still giving a sense of depth/focus following the pointer. */
+.page-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    var(--page-glow-radius, 260px) circle at var(--pointer-x, 50vw) var(--pointer-y, 20vh),
+    transparent 0%,
+    var(--glow-color) 100%
+  );
+  transition: background 0.05s linear, background-color 0.3s var(--ease-standard);
+}
+
+/* ---------- Card hover ----------
+   A plain lift + border highlight + background swap, no cursor tracking
+   — a mouse-following darken spotlight here read as an odd smudge rather
+   than a nice effect, so this keeps it to one simple, consistent cue. */
+.hover-card {
+  transition: border-color 0.3s var(--ease-standard), transform 0.3s var(--ease-standard),
+    box-shadow 0.3s var(--ease-standard), background-color 0.3s var(--ease-standard);
+}
+
+.hover-card:hover {
+  border-color: var(--color-teal);
+  background: var(--color-surface-alt);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px var(--shadow-color);
+}
+
+/* ---------- Scroll reveal ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s var(--ease-standard), transform 0.6s var(--ease-standard);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .page-glow {
+    display: none;
+  }
+}
+
+/* Hide the pointer glow and dot parallax on touch devices, cursor effects
+   don't make sense without a cursor. */
+@media (hover: none) {
+  .page-glow {
+    display: none;
+  }
+}
