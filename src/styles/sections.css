@@ -187,7 +187,7 @@
 .experience-card {
   position: relative;
   display: grid;
-  grid-template-columns: 140px 1fr;
+  grid-template-columns: 160px 1fr;
   gap: 28px;
   padding: 28px 0;
   scroll-margin-top: 80px;
@@ -217,6 +217,7 @@
   color: var(--color-text-secondary);
   padding-top: 4px;
   padding-left: 20px;
+  white-space: nowrap;
 }
 
 /* The node marker for this entry's spot on the timeline spine above,
