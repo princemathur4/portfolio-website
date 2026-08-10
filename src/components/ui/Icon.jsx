@@ -1,9 +1,12 @@
 import React from "react";
 
 /**
- * Small inline-SVG icon set (stroke-based, generic shapes rather than exact
- * brand marks) used anywhere a link needs more than plain text: the footer's
- * persistent contact/social row, the contact CTA, the resume link.
+ * Small inline-SVG icon set used anywhere a link needs more than plain
+ * text: the footer's persistent social row, project cards' GitHub link,
+ * the contact CTA, the resume link. Mostly stroke-based generic shapes,
+ * except `github`, which is a filled brand mark (fill="currentColor",
+ * stroke="none" set directly on its own path) rather than following the
+ * svg wrapper's default stroke styling below.
  */
 const ICONS = {
   email: (
