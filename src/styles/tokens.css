@@ -35,7 +35,7 @@
   --color-invert-ink: #ffffff;
 
   /* Effect colors, swapped per-theme so glows/shadows still read correctly */
-  --dot-color: rgba(175, 185, 200, 0.24);
+  --dot-color: rgba(175, 185, 200, 0.28);
   --glow-color: rgba(2, 4, 7, 0.55);
   --shadow-color: rgba(0, 0, 0, 0.45);
 
@@ -84,7 +84,7 @@
   --color-invert: #ffffff;
   --color-invert-ink: #000000;
 
-  --dot-color: rgba(23, 27, 36, 0.16);
+  --dot-color: rgba(23, 27, 36, 0.19);
   --glow-color: rgba(120, 130, 150, 0.16);
   --shadow-color: rgba(23, 27, 36, 0.12);
 
