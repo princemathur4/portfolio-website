@@ -67,6 +67,62 @@ const projects = [
     videoUrl: null,
     imagePath: null,
   },
+  {
+    id: "labroz-denim",
+    name: "Labroz Denim",
+    tagline: "Freelance e-commerce web app",
+    description:
+      "A freelance project: an e-commerce web application front-end and admin panel for a denim brand, built end-to-end from design through deployment.",
+    highlights: [
+      {
+        text: "Designed and developed the e-commerce front-end and admin panel using React.js, MobX for state management, and the Bulma CSS framework",
+        skills: ["React", "MobX", "Bulma CSS"],
+      },
+      {
+        text: "Used AWS Cognito for user authentication and AWS Amplify to wire up backing cloud services",
+        skills: ["AWS Cognito", "AWS Amplify"],
+      },
+      {
+        text: "Integrated the Razorpay SDK for seamless payment processing",
+        skills: ["Razorpay SDK"],
+      },
+      {
+        text: "Ensured mobile responsiveness for an optimal user experience across devices",
+        skills: [],
+      },
+      {
+        text: "Deployed the production app on AWS EC2 with Nginx as the web server, using Heroku for the testing environment",
+        skills: ["EC2", "Nginx", "Heroku"],
+      },
+    ],
+    stack: ["React", "MobX", "Bulma CSS", "Razorpay SDK", "AWS Cognito", "AWS Amplify", "AWS", "EC2", "Nginx", "Heroku"],
+    githubUrl: "https://github.com/princemathur4/Lucifer",
+    liveUrl: null,
+    videoUrl: null,
+    imagePath: null,
+  },
+  {
+    id: "stock-market-analysis-tool",
+    name: "Stock Market Analysis & Visualization Tool",
+    tagline: "Python-Tkinter desktop app for stock analysis",
+    description:
+      "A Python-Tkinter desktop application to visualize US stock closing prices, with portfolio management features and S&P 500 comparisons, using Pandas and Scikit-learn for analytics and long-term price projections.",
+    highlights: [
+      {
+        text: "Built a Python-Tkinter desktop app to visualize US stock closing prices with portfolio management and S&P 500 comparison features",
+        skills: ["Python", "Tkinter"],
+      },
+      {
+        text: "Used Pandas for data wrangling and Scikit-learn for machine-learning-based long-term price projections",
+        skills: ["Pandas", "Scikit-learn"],
+      },
+    ],
+    stack: ["Python", "Tkinter", "Pandas", "Scikit-learn"],
+    githubUrl: "https://github.com/princemathur4/Stock-Market-Trading-Analysis-Application",
+    liveUrl: null,
+    videoUrl: null,
+    imagePath: null,
+  },
 ];
 
 export default projects;

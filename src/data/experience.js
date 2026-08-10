@@ -197,8 +197,8 @@ const experience = [
         skills: ["Elasticsearch"],
       },
       {
-        text: "Built periodic web scrapers for financial data (stock news, reports) in Node.js/Puppeteer and Python (BeautifulSoup, Selenium), persisting results to MongoDB.",
-        skills: ["Node.js", "Python", "MongoDB"],
+        text: "Built periodic web scrapers for financial data (stock news, reports) in Node.js/Puppeteer and Python (BeautifulSoup, Selenium), using Pandas to clean and structure the results before persisting them to MongoDB.",
+        skills: ["Node.js", "Python", "MongoDB", "Puppeteer", "BeautifulSoup", "Selenium", "Web Scraping", "Pandas"],
       },
       {
         text: "Built a React frontend from scratch giving Spark Capital search capabilities over financial documents, including audio streaming for conference call recordings via AWS S3.",
@@ -232,7 +232,12 @@ const experience = [
       "Technical Mentorship",
       "Unit Testing",
       "NLP",
-      "Code Reviews"
+      "Code Reviews",
+      "Puppeteer",
+      "BeautifulSoup",
+      "Selenium",
+      "Web Scraping",
+      "Pandas",
     ],
     builtProject: {
       name: "Romulus and Robana",

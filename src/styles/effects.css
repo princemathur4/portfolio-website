@@ -97,10 +97,3 @@
   }
 }
 
-/* Hide the pointer glow and dot parallax on touch devices, cursor effects
-   don't make sense without a cursor. */
-@media (hover: none) {
-  .page-glow {
-    display: none;
-  }
-}

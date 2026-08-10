@@ -3,7 +3,7 @@ import ExternalLink from "../ui/ExternalLink.jsx";
 import MediaPlaceholder from "../ui/MediaPlaceholder.jsx";
 import { useFilters } from "../../context/FilterContext.jsx";
 import { highlightMatches } from "../../utils/highlightMatches.jsx";
-import { filterPointsBySkills } from "../../services/contentService.js";
+import { filterPointsBySkills, getSkillTier } from "../../services/contentService.js";
 
 export default function ProjectCard({ project }) {
   const { highlightedAnchorIds, searchQuery, activeSkills } = useFilters();
@@ -16,12 +16,14 @@ export default function ProjectCard({ project }) {
       id={anchorId}
       className={`card hover-card project-card ${isHighlighted ? "is-highlighted" : ""}`.trim()}
     >
-      <MediaPlaceholder
-        className="project-card__media"
-        imagePath={project.imagePath}
-        videoUrl={project.videoUrl}
-        label={project.name}
-      />
+      {(project.imagePath || project.videoUrl) && (
+        <MediaPlaceholder
+          className="project-card__media"
+          imagePath={project.imagePath}
+          videoUrl={project.videoUrl}
+          label={project.name}
+        />
+      )}
 
       <div>
         <h3 className="project-card__name">{project.name}</h3>
@@ -38,7 +40,7 @@ export default function ProjectCard({ project }) {
 
       <div className="project-card__stack">
         {project.stack.map((tag) => (
-          <span className="pill" key={tag}>
+          <span className={`pill pill--${getSkillTier(tag)}`} key={tag}>
             {tag}
           </span>
         ))}

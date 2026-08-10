@@ -2,7 +2,7 @@ import React from "react";
 import ExternalLink from "../ui/ExternalLink.jsx";
 import { useFilters } from "../../context/FilterContext.jsx";
 import { highlightMatches } from "../../utils/highlightMatches.jsx";
-import { filterPointsBySkills } from "../../services/contentService.js";
+import { filterPointsBySkills, getSkillTier } from "../../services/contentService.js";
 import { getCompanyColor } from "../../utils/companyColor.js";
 
 export default function ExperienceCard({ job }) {
@@ -39,7 +39,7 @@ export default function ExperienceCard({ job }) {
 
         <div className="experience-card__stack">
           {job.stack.map((tag) => (
-            <span className="pill" key={tag}>
+            <span className={`pill pill--${getSkillTier(tag)}`} key={tag}>
               {tag}
             </span>
           ))}

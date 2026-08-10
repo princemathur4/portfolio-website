@@ -39,11 +39,8 @@ export default function Hero({ profile }) {
         <p className="hero__tagline">{profile.heroTagline}</p>
 
         <div className="hero__actions">
-          <button type="button" className="btn btn-primary" onClick={() => scrollToId("projects")}>
-            View projects
-          </button>
-          <button type="button" className="btn btn-secondary" onClick={() => scrollToId("contact")}>
-            Get in touch
+          <button type="button" className="btn btn-primary" onClick={() => scrollToId("contact")}>
+            <Icon name="email" /> Get in touch
           </button>
           <a href={profile.resumeUrl} target="_blank" rel="noreferrer noopener" className="btn btn-secondary">
             <Icon name="download" /> Download resume

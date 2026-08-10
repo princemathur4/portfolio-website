@@ -46,10 +46,10 @@
 .skill-tag {
   position: relative;
   font-family: var(--font-mono);
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 500;
-  padding: 6px 12px;
-  border-radius: 999px;
+  padding: 4px 9px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--color-hairline);
   background: var(--color-surface);
   color: var(--color-text-primary);
@@ -229,22 +229,6 @@ mark.mark-skill {
   text-decoration: underline;
 }
 
-/* Media placeholder (used when a project has no screenshot yet) */
-.media-placeholder {
-  border-radius: var(--radius-md);
-  border: 1px dashed var(--color-hairline);
-  background: linear-gradient(135deg, var(--color-surface-alt), var(--color-surface));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 160px;
-  color: var(--color-text-secondary);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  text-align: center;
-  padding: 20px;
-}
-
 /* Avatar / initials mark */
 .avatar {
   width: 96px;
@@ -348,8 +332,27 @@ mark.mark-skill {
     right: 16px;
     transform: none;
     max-width: none;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    border-radius: 18px;
+  }
+  /* The label text alone is wider than most phone screens and, combined
+     with the reset button, left no room for the chips (flex-shrink was
+     squeezing .floating-filter-bar__chips down near zero width) and
+     pushed "Clear all" past the container edge since flex items can't
+     shrink below their nowrap text. Dropping the label and letting chips
+     take their own full-width row removes that competition entirely. */
+  .floating-filter-bar__label {
+    display: none;
   }
   .floating-filter-bar__chips {
+    flex: 1 1 100%;
     max-width: none;
+    order: 1;
+  }
+  .floating-filter-bar__reset {
+    order: 2;
+    margin-left: auto;
+    flex-shrink: 0;
   }
 }

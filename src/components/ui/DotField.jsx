@@ -18,9 +18,12 @@ function parseDotColor(raw) {
  * dot-grid look at rest, but each frame nudges dots near the pointer
  * according to the active effect's physics (see utils/cursorEffects.js).
  *
- * Falls back to drawing the grid once and never animating on touch
- * devices (no real pointer) and under prefers-reduced-motion, same as the
- * rest of the site's motion effects.
+ * On touch devices, touch position stands in for pointer position: contact
+ * (touchstart/pointerdown) nudges dots the same way a mouse hover would,
+ * and lifting the finger (pointerup/pointercancel) eases them back, same
+ * as the mouse leaving the window. Falls back to drawing the grid once and
+ * never animating under prefers-reduced-motion, same as the rest of the
+ * site's motion effects.
  */
 export default function DotField() {
   const canvasRef = useRef(null);
@@ -32,9 +35,10 @@ export default function DotField() {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const interactive =
-      window.matchMedia("(hover: hover)").matches &&
-      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const hasHover = window.matchMedia("(hover: hover)").matches;
+    const hasTouch = window.matchMedia("(pointer: coarse)").matches;
+    const interactive = !reducedMotion && (hasHover || hasTouch);
     const isConstellation = CURSOR_EFFECT === "constellation";
 
     let dots = [];
@@ -133,7 +137,15 @@ export default function DotField() {
 
     function handleResize() {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(buildGrid, 150);
+      resizeTimer = setTimeout(() => {
+        // Resizing the canvas element clears its pixels. On non-interactive
+        // (touch) devices the draw loop already exited after its one-shot
+        // static frame, so without this the grid stays blank after any
+        // viewport resize — e.g. mobile browser chrome collapsing/expanding
+        // on tap/scroll, or the keyboard opening when an input is focused.
+        buildGrid();
+        if (!frameId) frameId = requestAnimationFrame(draw);
+      }, 150);
     }
 
     function handleVisibility() {
@@ -148,6 +160,15 @@ export default function DotField() {
       window.addEventListener("pointermove", handlePointerMove, { passive: true });
       document.addEventListener("mouseleave", handlePointerLeave);
     }
+    if (interactive && hasTouch) {
+      // pointermove alone covers a dragging finger, but a plain tap fires
+      // no pointermove at all — pointerdown carries that first contact
+      // position instead. pointerup/pointercancel is touch's equivalent of
+      // the mouse leaving the window, so dots ease back the same way.
+      window.addEventListener("pointerdown", handlePointerMove, { passive: true });
+      window.addEventListener("pointerup", handlePointerLeave, { passive: true });
+      window.addEventListener("pointercancel", handlePointerLeave, { passive: true });
+    }
     window.addEventListener("resize", handleResize);
     document.addEventListener("visibilitychange", handleVisibility);
 
@@ -158,6 +179,9 @@ export default function DotField() {
       themeObserver.disconnect();
       window.removeEventListener("pointermove", handlePointerMove);
       document.removeEventListener("mouseleave", handlePointerLeave);
+      window.removeEventListener("pointerdown", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerLeave);
+      window.removeEventListener("pointercancel", handlePointerLeave);
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibility);
     };

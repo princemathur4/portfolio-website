@@ -185,17 +185,29 @@
 }
 
 .experience-card {
+  position: relative;
   display: grid;
   grid-template-columns: 140px 1fr;
   gap: 28px;
   padding: 28px 0;
-  border-top: 1px solid var(--color-hairline);
   scroll-margin-top: 80px;
 }
 
 .experience-list > .experience-card:first-child {
-  border-top: none;
   padding-top: 0;
+}
+
+/* Divider between entries. Inset a few px from the left so it starts
+   just past the vertical timeline spine (centred around left: 4-6px)
+   instead of cutting through it. */
+.experience-list > .experience-card:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 6px;
+  right: 0;
+  height: 1px;
+  background: var(--color-hairline);
 }
 
 .experience-card__dates {
@@ -248,6 +260,7 @@
   font-family: var(--font-display);
   font-size: 19px;
   font-weight: 600;
+  line-height: 1.6;
 }
 
 .experience-card__at {
@@ -365,9 +378,46 @@
 }
 
 @media (max-width: 640px) {
+  /* Below 640px .experience-card collapses to a single grid column, so
+     .experience-card__dates and .card stack instead of sitting side by
+     side — which would otherwise put the timeline spine (positioned
+     against .experience-list's own edge) directly through the card's
+     left edge. Padding the list creates a gutter for the spine so it
+     stays outside the card, and the node marker shifts back onto it. */
+  .experience-list {
+    padding-left: 22px;
+  }
+
   .experience-card {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .experience-card__dates {
+    padding-left: 0;
+  }
+
+  .experience-card__dates::before {
+    left: -22px;
+  }
+
+  /* The divider's desktop left inset (6px) is relative to .experience-card's
+     own box, which here sits 22px right of .experience-list's edge (the
+     spine gutter above) — so it needs to pull back the same 22px, net -16px,
+     to land flush against the spine instead of leaving a visible gap. */
+  .experience-list > .experience-card:not(:first-child)::before {
+    left: -16px;
+  }
+
+  /* Role and company badge often wrap to their own line here — drop the
+     "@" (redundant once they're stacked) and give the wrapped line more
+     breathing room than the tighter desktop line-height allows. */
+  .experience-card__title {
+    line-height: 2;
+  }
+
+  .experience-card__at {
+    display: none;
   }
 }
 
@@ -436,6 +486,17 @@
   flex-wrap: wrap;
   margin-top: auto;
   padding-top: 4px;
+}
+
+/* Condensed mobile/tablet stack row: only the primary-tier tech tags
+   stay visible on Experience and Project cards, so the tag row doesn't
+   sprawl on a narrow screen. The full list is still in the skills bar
+   above, and on the card itself at desktop widths. */
+@media (max-width: 900px) {
+  .experience-card__stack .pill--secondary,
+  .project-card__stack .pill--secondary {
+    display: none;
+  }
 }
 
 /* ---------- Education ---------- */

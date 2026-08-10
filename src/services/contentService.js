@@ -44,6 +44,21 @@ function stackIncludes(stack = [], skillLabel) {
   return stack.some((tag) => tag.toLowerCase() === needle);
 }
 
+const skillTierByLabel = new Map(
+  skillCategories.flatMap((category) => category.skills.map((skill) => [skill.label.toLowerCase(), skill.tier]))
+);
+
+/**
+ * Tier ("primary" | "secondary") for a stack/skill label, as declared in
+ * data/skills.js. Used to hide secondary-tier tags from the per-card
+ * stack row on mobile/tablet. A label with no matching skills.js entry
+ * (e.g. a one-off tool like "Yjs (CRDT)") defaults to "primary" so it
+ * stays visible rather than silently disappearing.
+ */
+export function getSkillTier(label) {
+  return skillTierByLabel.get(label.toLowerCase()) || "primary";
+}
+
 /**
  * Finds every experience/project entry whose `stack` array includes the
  * given skill label (case-insensitive), so the skills bar can preview and

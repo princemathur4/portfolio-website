@@ -23,7 +23,7 @@ export default function SkillsBar() {
             <div className="skills-bar__group-label">{category.label}</div>
             <div className="skills-bar__tags">
               {category.skills.map((skill) => (
-                <Tag key={skill} label={skill} />
+                <Tag key={skill.label} label={skill.label} />
               ))}
             </div>
           </div>
