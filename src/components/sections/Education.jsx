@@ -13,7 +13,7 @@ export default function Education() {
   return (
     <section id="education" className="section">
       <div className="container">
-        <SectionHeading eyebrow="05 &middot; education" title="Education" />
+        <SectionHeading eyebrow="05 &middot; education" title="My academic background" />
         <div className="education-list">
           {education.map((entry) => (
             <div className="card hover-card" key={entry.id}>

@@ -10,13 +10,37 @@
   border-radius: var(--radius-md);
   text-decoration: none;
   border: 1px solid var(--color-hairline);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   transition: transform 0.2s var(--ease-standard), border-color 0.2s var(--ease-standard),
-    background 0.2s var(--ease-standard), color 0.2s var(--ease-standard);
+    background 0.2s var(--ease-standard), color 0.35s var(--ease-standard) 0.1s;
   cursor: pointer;
 }
 
 .btn:hover {
   transform: translateY(-2px);
+}
+
+/* Hover fill: a circle grows from the button's center out to a size that
+   always clears its corners, clipped by .btn's overflow:hidden. Sits at
+   z-index -1 so it paints above the button's own background but below the
+   in-flow icon/label content, with no extra markup needed. */
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.45s var(--ease-standard);
+  z-index: -1;
+}
+
+.btn:hover::before {
+  transform: translate(-50%, -50%) scale(1);
 }
 
 .btn-primary {
@@ -25,21 +49,48 @@
   border-color: var(--color-amber);
 }
 
+.btn-primary::before {
+  background: var(--color-surface-alt);
+}
+
 .btn-primary:hover {
+  color: var(--color-amber);
   box-shadow: 0 10px 24px rgba(232, 178, 77, 0.32);
 }
 
 .btn-secondary {
-  background: var(--color-surface-alt);
+  background: color-mix(in srgb, var(--color-teal) 10%, var(--color-surface-alt));
   color: var(--color-text-primary);
   border-color: var(--color-teal);
 }
 
-.btn-secondary:hover {
+.btn-secondary::before {
   background: var(--color-teal);
+}
+
+.btn-secondary:hover {
   color: var(--color-amber-ink);
   border-color: var(--color-teal);
   box-shadow: 0 10px 22px rgba(89, 195, 180, 0.28);
+}
+
+/* Light theme: rest state gets a light teal tint instead of the neutral
+   surface tone (so the button reads as teal-flavored even before hover),
+   and the hover text switches to white instead of --color-amber-ink,
+   since white reads far better against the solid teal fill than near-black
+   does once the hover circle expands. */
+:root[data-theme="light"] .btn-secondary {
+  background: color-mix(in srgb, var(--color-teal) 25%, white);
+}
+
+:root[data-theme="light"] .btn-secondary:hover {
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn::before {
+    transition: none;
+  }
 }
 
 /* Skill tag (interactive, in the top skills bar) */

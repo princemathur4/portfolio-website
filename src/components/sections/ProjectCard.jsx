@@ -1,5 +1,6 @@
 import React from "react";
 import ExternalLink from "../ui/ExternalLink.jsx";
+import Icon from "../ui/Icon.jsx";
 import MediaPlaceholder from "../ui/MediaPlaceholder.jsx";
 import { useFilters } from "../../context/FilterContext.jsx";
 import { highlightMatches } from "../../utils/highlightMatches.jsx";
@@ -47,7 +48,29 @@ export default function ProjectCard({ project }) {
       </div>
 
       <div className="project-card__links">
-        <ExternalLink href={project.githubUrl}>GitHub</ExternalLink>
+        {project.githubUrl && (
+          <a
+            href={project.githubUrl}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="project-card__github"
+          >
+            <Icon name="github" />
+            <span>GitHub</span>
+            <span className="project-card__github-arrow" aria-hidden="true">
+              <svg className="project-card__github-arrow-icon" viewBox="0 0 12 12" aria-hidden="true">
+                <path
+                  d="M3.5 8.5L9 3M9 3H6.75M9 3V5.25"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+          </a>
+        )}
         <ExternalLink href={project.liveUrl}>Live site</ExternalLink>
       </div>
     </article>

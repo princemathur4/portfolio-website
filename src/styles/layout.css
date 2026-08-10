@@ -219,6 +219,10 @@
   gap: 8px;
 }
 
+/* Each link only carries its raw accent hue via --link-color (set inline
+   from Footer.jsx); the actual color/border/background below are derived
+   from it per-theme, so light and dark can pick different saturations of
+   the same hue instead of sharing one fixed pastel value. */
 .footer__link {
   display: inline-flex;
   align-items: center;
@@ -231,8 +235,11 @@
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
+  color: var(--link-color);
+  border-color: color-mix(in srgb, var(--link-color) 50%, transparent);
+  background: color-mix(in srgb, var(--link-color) 10%, transparent);
   transition: transform 0.2s var(--ease-standard), box-shadow 0.2s var(--ease-standard),
-    background-color 0.2s var(--ease-standard);
+    background-color 0.2s var(--ease-standard), color 0.2s var(--ease-standard), border-color 0.2s var(--ease-standard);
 }
 
 .footer__link:hover,
@@ -241,16 +248,27 @@
   box-shadow: 0 8px 18px -6px currentColor;
 }
 
-/* The per-link accent colors (set inline from Footer.jsx via `color`,
-   `borderColor`, `background`) are pastel, so their luminance sits close
-   to a lightly-tinted background — a bigger tint just raises both in
-   lockstep. What actually reads as contrast here is widening the gap:
-   push the background toward white so the full-saturation text pops
-   against it, rather than blending into a same-hue backdrop. The
-   !important is deliberate: it's overriding a JS-computed inline style,
-   which nothing but !important can do from a stylesheet. */
+/* The raw --link-color values are pastel, sized for standing out against
+   the dark theme's dark background. On the light theme's bright background
+   that same pastel reads as washed-out and low-contrast, so this switches
+   to a solid darkened-hue fill (each channel mixed with black) with white
+   text/icon on top, rather than a light tint with dark text — reads as a
+   proper colored badge instead of a faint chip. */
 :root[data-theme="light"] .footer__link {
-  background: color-mix(in srgb, currentColor 12%, white) !important;
-  border-color: currentColor !important;
+  color: #ffffff;
+  border-color: color-mix(in srgb, var(--link-color) 60%, black);
+  background: color-mix(in srgb, var(--link-color) 70%, black);
   box-shadow: 0 1px 4px var(--shadow-color);
+}
+
+/* The dark theme's hover glow (box-shadow ... currentColor) rides on
+   `color` being the link's own accent hue — but light theme's `color` is
+   fixed to white for contrast against the darkened fill above, so that
+   glow would come out white/invisible against a light page. Read the
+   accent straight from --link-color instead so the glow stays colored,
+   darkened the same way the background is (a raw pastel glow reads as
+   too faint/washed-out against a light page to feel like a real glow). */
+:root[data-theme="light"] .footer__link:hover,
+:root[data-theme="light"] .footer__link:focus-visible {
+  box-shadow: 0 10px 22px -4px color-mix(in srgb, var(--link-color) 70%, black);
 }

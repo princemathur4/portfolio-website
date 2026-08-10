@@ -73,11 +73,13 @@ src/
 
 Sections render in this order: **Hero → About → Skills → Experience →
 Projects → Education → Contact**. Hero is deliberately the "who I am" section
-— name, tagline, availability, quick links (email/LinkedIn/GitHub/HackerRank),
-and the resume/projects/contact actions — rather than a skills list, so a
-visitor gets the human summary before the filterable skill tags. Skills moves
-right after About/experience so the filtering UI shows up once there's
-already content on the page for it to filter.
+— name, tagline, availability, and the "Get in touch"/"Download resume"
+actions — rather than a skills list, so a visitor gets the human summary
+before the filterable skill tags. The quick social links (LinkedIn, GitHub,
+HackerRank) live in the persistent `Footer`, not Hero, so they stay reachable
+no matter how far down the page you've scrolled. Skills moves right after
+About/experience so the filtering UI shows up once there's already content on
+the page for it to filter.
 
 ### Theming
 
@@ -110,7 +112,7 @@ The dot-grid background behind the page can react to the mouse. Which
 effect is active is a single line in `src/config/cursorEffect.js`:
 
 ```js
-export const CURSOR_EFFECT = "repel"; // "none" | "repel" | "attract" | "blackhole" | "constellation" | "tubes"
+export const CURSOR_EFFECT = "attract"; // "none" | "repel" | "attract" | "blackhole" | "constellation" | "tubes"
 ```
 
 - `"none"` renders the original static CSS dot grid, no canvas/JS.
