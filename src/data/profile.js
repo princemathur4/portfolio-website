@@ -30,7 +30,7 @@ const profile = {
   // team effort behind the metrics.
   aboutParagraphs: [
     "I'm a backend-leaning engineer with 7.5+ years across Fintech, EdTech, and Restaurant Tech, building the parts of software that keep everything else running: idempotent queues, schemas that hold up under concurrent writes, pipelines quietly processing millions of jobs in the background. I've moved between individual contributor and tech lead roles, including leading a team of five and coordinating with an external university partner on a shared product, picked up hands-on experience integrating LLMs and RAG pipelines into production features along the way, and try to mentor engineers earlier in their career the way people once did for me.",
-    "Right now I'm looking for a Senior or Staff backend role at a mid-to-large product company, and I'm equally open to Forward Deployed Engineer or founding engineer roles at earlier-stage, AI-forward startups (Series B\u2013D) where I can help shape the system from closer to the ground floor.",
+    "Right now I'm looking for a Senior or Staff backend role at a mid-to-large product company, and I'm equally open to Forward Deployed Engineer or founding engineer roles at earlier-stage, AI-forward startups (Series B\u2013D) where I can help shape the system from closer to the ground.",
   ],
 
   social: {

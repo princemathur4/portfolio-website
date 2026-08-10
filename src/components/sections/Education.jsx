@@ -16,7 +16,7 @@ export default function Education() {
         <SectionHeading eyebrow="05 &middot; education" title="Education" />
         <div className="education-list">
           {education.map((entry) => (
-            <div className="card" key={entry.id}>
+            <div className="card hover-card" key={entry.id}>
               <div className="education-card__degree">{entry.degree}</div>
               <ExternalLink href={entry.institutionUrl} className="education-card__institution">
                 {entry.institution}
