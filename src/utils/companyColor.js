@@ -5,10 +5,10 @@
  */
 const COMPANY_COLORS = {
   checkmate: "#E85D9C", // pink
-  scaler: "#3E7BFA", // blue
-  egregore: "#2F7D52", // darkish green
+  scaler: "#007bc9", // blue
+  egregore: "#00B250", // green
   redcarpetup: "#E8623D", // reddish orange
-  cetpa: "#B5D63B", // lemon green
+  cetpa: "#22B8D8", // cyan
 };
 
 const FALLBACK_COLOR = "#59C3B4";
