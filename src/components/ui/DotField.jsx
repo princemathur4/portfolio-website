@@ -6,10 +6,22 @@ import { hexToRgbTuple } from "../../utils/skillColor.js";
 const SPACING = 26;
 const DOT_RADIUS = 1.1;
 
+// Resolves a CSS color string to RGBA by letting the canvas itself parse it
+// and reading the pixel back, rather than regexing the text — the minified
+// production build serializes --dot-color as 8-digit hex (e.g. #afb9c857)
+// instead of the rgba(r, g, b, a) source form, and a regex tuned for one
+// format silently misreads digits out of the other.
+const colorProbe = document.createElement("canvas");
+colorProbe.width = 1;
+colorProbe.height = 1;
+const colorProbeCtx = colorProbe.getContext("2d");
+
 function parseDotColor(raw) {
-  const nums = (raw.match(/[\d.]+/g) || []).map(Number);
-  const [r = 154, g = 164, b = 178, a = 0.28] = nums;
-  return { r, g, b, a };
+  colorProbeCtx.fillStyle = "rgba(154, 164, 178, 0.28)";
+  colorProbeCtx.fillStyle = raw;
+  colorProbeCtx.fillRect(0, 0, 1, 1);
+  const [r, g, b, a] = colorProbeCtx.getImageData(0, 0, 1, 1).data;
+  return { r, g, b, a: a / 255 };
 }
 
 /**
