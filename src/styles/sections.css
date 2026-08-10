@@ -195,17 +195,11 @@
   padding-left: 20px;
 }
 
-.experience-card:nth-child(odd) .experience-card__dates {
-  --node-color: var(--color-amber);
-}
-
-.experience-card:nth-child(even) .experience-card__dates {
-  --node-color: var(--color-teal);
-}
-
-/* The node marker for this entry's spot on the timeline spine above. The
-   ring (box-shadow using the page background) punches a gap in the line
-   behind it, so it reads as a bead threaded on the spine. */
+/* The node marker for this entry's spot on the timeline spine above,
+   rendered as a gradient of that entry's --company-color (set inline on
+   .experience-card by getCompanyColor). The ring (box-shadow using the
+   page background) punches a gap in the line behind it, so it reads as a
+   bead threaded on the spine. */
 .experience-card__dates::before {
   content: "";
   position: absolute;
@@ -214,8 +208,12 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--node-color, var(--color-amber));
-  box-shadow: 0 0 0 3px var(--color-bg), 0 0 10px 2px var(--node-color, var(--color-amber));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--company-color, var(--color-amber)) 55%, white 45%),
+    var(--company-color, var(--color-amber))
+  );
+  box-shadow: 0 0 0 3px var(--color-bg), 0 0 10px 2px var(--company-color, var(--color-amber));
   z-index: 1;
   animation: timeline-node-pulse 2.6s ease-in-out infinite;
 }
@@ -223,43 +221,40 @@
 @keyframes timeline-node-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 3px var(--color-bg), 0 0 8px 1px var(--node-color, var(--color-amber));
+    box-shadow: 0 0 0 3px var(--color-bg), 0 0 8px 1px var(--company-color, var(--color-amber));
   }
   50% {
-    box-shadow: 0 0 0 3px var(--color-bg), 0 0 14px 3px var(--node-color, var(--color-amber));
+    box-shadow: 0 0 0 3px var(--color-bg), 0 0 14px 3px var(--company-color, var(--color-amber));
   }
 }
 
 .experience-card__header {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  flex-wrap: wrap;
   margin-bottom: 4px;
 }
 
-.experience-card__role {
+.experience-card__title {
   font-family: var(--font-display);
   font-size: 19px;
   font-weight: 600;
 }
 
+.experience-card__at {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
 .experience-card__company-link {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 11px;
-  border: 1px solid var(--color-teal);
-  border-radius: 999px;
-  background: rgba(89, 195, 180, 0.1);
-  color: var(--color-teal);
-  font-size: 13px;
+  color: var(--company-color, var(--color-teal));
+  font-size: 17px;
   font-weight: 600;
-  text-decoration: none;
-  transition: background-color 0.2s var(--ease-standard);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--company-color, var(--color-teal)) 45%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s var(--ease-standard);
 }
 
 .experience-card__company-link:hover {
-  background: rgba(89, 195, 180, 0.2);
+  text-decoration-color: var(--company-color, var(--color-teal));
 }
 
 .experience-card__location {

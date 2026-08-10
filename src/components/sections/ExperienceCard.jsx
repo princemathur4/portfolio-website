@@ -3,22 +3,30 @@ import ExternalLink from "../ui/ExternalLink.jsx";
 import { useFilters } from "../../context/FilterContext.jsx";
 import { highlightMatches } from "../../utils/highlightMatches.jsx";
 import { filterPointsBySkills } from "../../services/contentService.js";
+import { getCompanyColor } from "../../utils/companyColor.js";
 
 export default function ExperienceCard({ job }) {
   const { highlightedAnchorIds, searchQuery, activeSkills } = useFilters();
   const anchorId = `exp-${job.id}`;
   const isHighlighted = highlightedAnchorIds.includes(anchorId);
   const visibleBullets = filterPointsBySkills(job.bullets, activeSkills);
+  const companyColor = getCompanyColor(job.id);
 
   return (
-    <article id={anchorId} className={`experience-card ${isHighlighted ? "is-highlighted" : ""}`.trim()}>
+    <article
+      id={anchorId}
+      className={`experience-card ${isHighlighted ? "is-highlighted" : ""}`.trim()}
+      style={{ "--company-color": companyColor }}
+    >
       <div className="experience-card__dates">{job.dateRange}</div>
       <div className="card hover-card">
         <div className="experience-card__header">
-          <h3 className="experience-card__role">{job.role}</h3>
-          <ExternalLink href={job.companyUrl} className="experience-card__company-link">
-            {job.company}
-          </ExternalLink>
+          <h3 className="experience-card__title">
+            {job.role} <span className="experience-card__at">@</span>{" "}
+            <ExternalLink href={job.companyUrl} className="experience-card__company-link">
+              {job.company}
+            </ExternalLink>
+          </h3>
         </div>
         <div className="experience-card__location">{job.location}</div>
         <p className="experience-card__summary">{job.summary}</p>
