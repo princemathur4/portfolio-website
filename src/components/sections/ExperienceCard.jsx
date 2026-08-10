@@ -38,11 +38,13 @@ export default function ExperienceCard({ job }) {
         </ul>
 
         <div className="experience-card__stack">
-          {job.stack.map((tag) => (
-            <span className={`pill pill--${getSkillTier(tag)}`} key={tag}>
-              {tag}
-            </span>
-          ))}
+          {job.stack
+            .filter((tag) => getSkillTier(tag) === "primary")
+            .map((tag) => (
+              <span className="pill pill--primary" key={tag}>
+                {tag}
+              </span>
+            ))}
         </div>
 
         {job.builtProject && (

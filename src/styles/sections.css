@@ -8,10 +8,10 @@
 .hero::before {
   content: "";
   position: absolute;
-  top: -180px;
+  top: 20px;
   right: -200px;
-  width: 550px;
-  height: 550px;
+  width: 500px;
+  height: 500px;
   background: radial-gradient(circle, rgba(232, 178, 77, 0.32), transparent 70%);
   z-index: -1;
   pointer-events: none;
@@ -20,10 +20,10 @@
 .hero::after {
   content: "";
   position: absolute;
-  top: 20px;
+  top: -200px;
   left: -240px;
-  width: 460px;
-  height: 460px;
+  width: 550px;
+  height: 550px;
   background: radial-gradient(circle, rgba(89, 195, 180, 0.28), transparent 70%);
   z-index: -1;
   pointer-events: none;
@@ -52,7 +52,8 @@
 .hero__status {
   font-family: var(--font-mono);
   font-size: 13px;
-  color: var(--color-text-secondary);
+  font-weight: 500;
+  color: color-mix(in srgb, var(--color-text-primary) 30%, var(--color-text-secondary));
   display: flex;
   align-items: center;
   gap: 10px;
@@ -60,6 +61,24 @@
 
 .hero__status-dot {
   color: var(--color-teal);
+  display: inline-block;
+  animation: hero-status-blink 1.8s ease-in-out infinite;
+}
+
+/* Dims to a low-opacity resting teal, then blooms up to --status-dot-peak
+   (brighter on dark theme, darker on light theme — see tokens.css) at full
+   opacity, so the "on" phase reads as a real pulse rather than just a
+   plain opacity fade of the same color. */
+@keyframes hero-status-blink {
+  0%,
+  100% {
+    color: var(--color-teal);
+    opacity: 0.35;
+  }
+  50% {
+    color: var(--status-dot-peak);
+    opacity: 1;
+  }
 }
 
 .hero__divider {
@@ -73,23 +92,40 @@
   margin-bottom: 16px;
 }
 
+/* The base teal reads fine on the dark theme's dark backdrop, but on the
+   light theme's bright background it needs to go darker, not lighter, to
+   stand out as prominently. */
+:root[data-theme="light"] .hero__kicker {
+  color: color-mix(in srgb, var(--color-teal) 75%, black);
+}
+
 .hero__name {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(38px, 6vw, 60px);
   line-height: 1.05;
   margin-bottom: 8px;
-  background: linear-gradient(120deg, var(--color-text-primary) 25%, var(--color-amber) 65%, var(--color-teal) 100%);
+  background: white;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* The white-background-clip trick above only reads correctly against the
+   dark theme's dark backdrop; on the light theme's light background it's
+   the same white text turning near-invisible. Plain solid black instead. */
+:root[data-theme="light"] .hero__name {
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: #000000;
 }
 
 .hero__title {
   font-family: var(--font-display);
   font-weight: 500;
   font-size: clamp(18px, 2.2vw, 22px);
-  color: var(--color-text-secondary);
+  color: var(--color-amber);
   margin-bottom: 20px;
 }
 
@@ -99,6 +135,7 @@
   color: var(--color-text-primary);
   max-width: 620px;
   margin-bottom: 32px;
+  font-style: italic;
 }
 
 .hero__actions {
@@ -485,16 +522,61 @@
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+  align-items: center;
   margin-top: auto;
   padding-top: 4px;
 }
 
-/* Condensed mobile/tablet stack row: only the primary-tier tech tags
-   stay visible on Experience and Project cards, so the tag row doesn't
-   sprawl on a narrow screen. The full list is still in the skills bar
-   above, and on the card itself at desktop widths. */
+/* GitHub link gets a dedicated button treatment (rather than the plain
+   .external-link text style) so it reads as the primary action on a
+   project card — a violet-bordered pill that inverts to a solid
+   black/white fill on hover, echoing GitHub's own black-and-white brand
+   look while staying on the site's violet accent. */
+   .project-card__github {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-violet-border);
+    color: var(--color-text-primary);
+    background: color-mix(in srgb, var(--color-violet-glow) 14%, transparent);
+    text-decoration: none;
+    transition: background-color 0.2s var(--ease-standard), color 0.2s var(--ease-standard),
+      box-shadow 0.2s var(--ease-standard), transform 0.2s var(--ease-standard);
+  }
+  
+  .project-card__github:hover {
+    background: var(--color-violet-hover-bg);
+    color: var(--color-violet-hover-font);
+    border-color: var(--color-violet-hover-border);
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--color-violet-glow) 24%, transparent);
+    transform: translateY(-2px);
+  }
+
+  .project-card__github-arrow {
+    display: inline-flex;
+    align-items: flex-start;
+    justify-content: center;
+    align-self: flex-start;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .project-card__github-arrow-icon {
+    width: 1.1em;
+    height: 1.1em;
+    display: block;
+  }
+/* Experience cards only ever render primary-tier stack pills (filtered
+   in ExperienceCard.jsx), at every viewport width. Project cards still
+   render every tier; this condenses them to primary-tier below 900px so
+   the tag row doesn't sprawl on a narrow screen. The full list is still
+   in the skills bar above either way. */
 @media (max-width: 900px) {
-  .experience-card__stack .pill--secondary,
   .project-card__stack .pill--secondary {
     display: none;
   }
@@ -616,14 +698,14 @@
 
 /* Icon side stays a solid orange "send" button, with its icon inverted
    per theme (white in light theme, black in dark theme, via
-   --contact-email-alt) for contrast against the orange fill. The text
+   --color-invert) for contrast against the orange fill. The text
    side is filled with an opaque --color-bg (not `transparent`) so it
    reads as blending into the page rather than showing the .contact
    section's glow blobs through it, while still keeping orange text —
    it reads as "copy this value" rather than a second identical button. */
 .contact__email-icon {
   background: var(--color-amber);
-  color: var(--contact-email-alt);
+  color: var(--color-invert);
 }
 
 .contact__email-text {

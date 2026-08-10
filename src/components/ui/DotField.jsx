@@ -15,10 +15,30 @@ const colorProbe = document.createElement("canvas");
 colorProbe.width = 1;
 colorProbe.height = 1;
 const colorProbeCtx = colorProbe.getContext("2d");
+const FALLBACK_DOT_COLOR = { r: 154, g: 164, b: 178, a: 0.28 };
 
-function parseDotColor(raw) {
-  colorProbeCtx.fillStyle = "rgba(154, 164, 178, 0.28)";
+// A canvas silently ignores an invalid fillStyle assignment and keeps
+// whatever was set before it — so if `raw` is ever empty/unparseable (e.g.
+// a transient computed-style read), comparing fillStyle before/after
+// catches that instead of blindly trusting the pixel readback, which would
+// otherwise resolve to a stale color left over from the previous probe
+// (or, on the very first call, canvas's default opaque black) and get
+// reported as if it were `raw`. `fallback` keeps the last known-good
+// parsed color so a failed reparse doesn't flash every dot on screen to
+// the wrong brightness.
+function parseDotColor(raw, fallback = FALLBACK_DOT_COLOR) {
+  const before = colorProbeCtx.fillStyle;
   colorProbeCtx.fillStyle = raw;
+  if (colorProbeCtx.fillStyle === before) return fallback;
+  // The probe canvas is a single persistent 1x1 pixel reused across every
+  // call (once per mount, plus once per theme toggle via themeObserver
+  // below) — without clearing it first, painting a semi-transparent color
+  // (--dot-color's alpha is always < 1) composites "source-over" onto
+  // whatever's already there instead of replacing it, so the read-back
+  // alpha ratchets up a little further with every single toggle instead of
+  // reflecting `raw` on its own. A page refresh recreates this canvas from
+  // scratch, which is why that "resets" the effect.
+  colorProbeCtx.clearRect(0, 0, 1, 1);
   colorProbeCtx.fillRect(0, 0, 1, 1);
   const [r, g, b, a] = colorProbeCtx.getImageData(0, 0, 1, 1).data;
   return { r, g, b, a: a / 255 };
@@ -65,7 +85,7 @@ export default function DotField() {
     let accentRgb = hexToRgbTuple(getComputedStyle(document.documentElement).getPropertyValue("--color-teal") || "#59c3b4");
 
     const themeObserver = new MutationObserver(() => {
-      dotColor = parseDotColor(getComputedStyle(document.documentElement).getPropertyValue("--dot-color"));
+      dotColor = parseDotColor(getComputedStyle(document.documentElement).getPropertyValue("--dot-color"), dotColor);
       accentRgb = hexToRgbTuple(getComputedStyle(document.documentElement).getPropertyValue("--color-teal") || "#59c3b4");
     });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
