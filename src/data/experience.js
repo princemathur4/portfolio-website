@@ -15,6 +15,14 @@
  * `builtProject` is optional on purpose (per Prince: summary + link +
  * screenshot, all optional) since most of these are internal/enterprise
  * products without a public demo.
+ *
+ * `promotions` is also optional: an array of `{ title, dateRange }`,
+ * chronological (oldest first), for a role that changed mid-tenure.
+ * ExperienceCard.jsx renders it as a small promotion timeline in the
+ * dates column instead of the plain `dateRange` string — `role` should
+ * still be set to the final/current title (it's what shows in the card
+ * header), and `summary`/`bullets`/`stack`/`builtProject` still describe
+ * the tenure as a whole, not split per title.
  */
 const experience = [
   {
@@ -94,6 +102,15 @@ const experience = [
     location: "Bengaluru, India (Hybrid)",
     dateRange: "Mar 2022 \u2013 Apr 2025",
     current: false,
+    // Optional, chronological (oldest first): renders as a small
+    // promotion timeline in the dates column instead of a single date
+    // range, when a role changed mid-tenure. Everything else about the
+    // entry (summary/bullets/stack/builtProject) still describes the
+    // tenure as a whole.
+    promotions: [
+      { title: "SDE-2", dateRange: "Mar 2022 \u2013 Jan 2024" },
+      { title: "Senior Software Engineer", dateRange: "Jan 2024 \u2013 Apr 2025" },
+    ],
     summary:
       "Education platform offering tech upskilling and postgraduate degree programs run jointly with international university partners.",
     bullets: [
@@ -177,6 +194,10 @@ const experience = [
     location: "New Delhi, India (Hybrid)",
     dateRange: "Apr 2019 \u2013 Feb 2022",
     current: false,
+    promotions: [
+      { title: "Full Stack Developer, Level 1", dateRange: "Apr 2019 \u2013 Apr 2021" },
+      { title: "Full Stack Developer, Level 2", dateRange: "Apr 2021 \u2013 Feb 2022" },
+    ],
     summary:
       "AI-driven fintech company building document intelligence and financial data products.",
     bullets: [

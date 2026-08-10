@@ -12,7 +12,23 @@ export default function ExperienceCard({ job }) {
 
   return (
     <article id={anchorId} className={`experience-card ${isHighlighted ? "is-highlighted" : ""}`.trim()}>
-      <div className="experience-card__dates">{job.dateRange}</div>
+      <div className={`experience-card__dates ${job.promotions ? "experience-card__dates--multi" : ""}`.trim()}>
+        {job.promotions ? (
+          [...job.promotions].reverse().map((step, index) => (
+            <div className="experience-card__promo-step" key={step.title}>
+              {index > 0 && (
+                <div className="experience-card__promo-marker">
+                  <span aria-hidden="true">&#8593;</span> Promoted
+                </div>
+              )}
+              <div className="experience-card__promo-title">{step.title}</div>
+              <div className="experience-card__promo-range">{step.dateRange}</div>
+            </div>
+          ))
+        ) : (
+          job.dateRange
+        )}
+      </div>
       <div className="card hover-card">
         <div className="experience-card__header">
           <h3 className="experience-card__role">{job.role}</h3>

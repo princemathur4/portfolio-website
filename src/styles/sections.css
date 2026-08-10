@@ -230,6 +230,62 @@
   }
 }
 
+/* A mid-tenure promotion (job.promotions in experience.js) replaces the
+   single dateRange line with its own mini timeline — most recent title on
+   top, matching the page-level timeline's convention — so the outer node
+   above is redundant here and gets suppressed in favor of one node per
+   step. */
+.experience-card__dates--multi {
+  padding-left: 0;
+}
+
+.experience-card__dates--multi::before {
+  content: none;
+}
+
+.experience-card__promo-step {
+  position: relative;
+  padding-left: 16px;
+}
+
+.experience-card__promo-step:not(:last-child) {
+  margin-bottom: 14px;
+}
+
+.experience-card__promo-step::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--node-color, var(--color-amber));
+  box-shadow: 0 0 8px 1px var(--node-color, var(--color-amber));
+}
+
+.experience-card__promo-title {
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.experience-card__promo-range {
+  margin-top: 1px;
+}
+
+.experience-card__promo-marker {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 0 6px 3px;
+  padding: 2px 0 2px 13px;
+  border-left: 1px dashed var(--color-hairline);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--node-color, var(--color-teal));
+}
+
 .experience-card__header {
   display: flex;
   align-items: baseline;
