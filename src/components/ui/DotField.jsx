@@ -17,19 +17,27 @@ const colorProbeCtx = colorProbe.getContext("2d");
 const FALLBACK_DOT_COLOR = { r: 154, g: 164, b: 178, a: 0.28 };
 const WHITE_HOLE_PEAK = { r: 255, g: 255, b: 255 };
 
-// A canvas silently ignores an invalid fillStyle assignment and keeps
-// whatever was set before it — so if `raw` is ever empty/unparseable (e.g.
-// a transient computed-style read), comparing fillStyle before/after
-// catches that instead of blindly trusting the pixel readback, which would
-// otherwise resolve to a stale color left over from the previous probe
-// (or, on the very first call, canvas's default opaque black) and get
-// reported as if it were `raw`. `fallback` keeps the last known-good
-// parsed color so a failed reparse doesn't flash every dot on screen to
-// the wrong brightness.
+// `raw` only ever fails to be a real color when a transient computed-style
+// read comes back empty — check that directly instead of the fillStyle
+// before/after comparison this used to do. That comparison looked
+// reasonable (a canvas silently ignores an invalid fillStyle assignment
+// and keeps whatever was set before it, so "did fillStyle change" seemed
+// like a fair proxy for "was this valid") but had a real bug: the probe
+// canvas is a single persistent 1x1 pixel reused across every call, so if
+// `raw` is ever identical to whatever the probe was already showing —
+// which happens reliably under React StrictMode, which double-invokes
+// this component's effect in dev, so the second invocation's mount-time
+// parse reads the exact same value the first invocation already painted —
+// "fillStyle didn't change" is true despite `raw` being completely valid,
+// and it wrongly fell back to FALLBACK_DOT_COLOR. Since FALLBACK_DOT_COLOR
+// is dimmer than every theme's real dot color, that showed up as dots
+// rendering visibly dimmer on load than they should, correcting itself
+// only once something (a theme or effect toggle) produced a `raw` that
+// actually differed from the probe's last-painted value — which read
+// exactly like the old "gets darker/more contrasty" accumulation bug this
+// function was originally written to fix, just via a different mechanism.
 function parseDotColor(raw, fallback = FALLBACK_DOT_COLOR) {
-  const before = colorProbeCtx.fillStyle;
-  colorProbeCtx.fillStyle = raw;
-  if (colorProbeCtx.fillStyle === before) return fallback;
+  if (!raw || !raw.trim()) return fallback;
   // The probe canvas is a single persistent 1x1 pixel reused across every
   // call (once per mount, plus once per theme toggle via themeObserver
   // below) — without clearing it first, painting a semi-transparent color
@@ -39,6 +47,7 @@ function parseDotColor(raw, fallback = FALLBACK_DOT_COLOR) {
   // reflecting `raw` on its own. A page refresh recreates this canvas from
   // scratch, which is why that "resets" the effect.
   colorProbeCtx.clearRect(0, 0, 1, 1);
+  colorProbeCtx.fillStyle = raw;
   colorProbeCtx.fillRect(0, 0, 1, 1);
   const [r, g, b, a] = colorProbeCtx.getImageData(0, 0, 1, 1).data;
   return { r, g, b, a: a / 255 };

@@ -31,7 +31,7 @@
  *                     now a one-click-reachable, shippable choice, not
  *                     just a manual config edit.
  */
-export const CURSOR_EFFECT = "blackhole";
+export const CURSOR_EFFECT = "repel";
 
 /**
  * The effects a visitor can actually pick from the cursor-effect easter
