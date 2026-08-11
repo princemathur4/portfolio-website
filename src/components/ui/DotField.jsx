@@ -4,6 +4,15 @@ import { hexToRgbTuple } from "../../utils/skillColor.js";
 
 const SPACING = 26;
 const DOT_RADIUS = 1.1;
+// How long a tap's target position lingers before easing back to rest. A
+// plain tap's pointerdown->pointerup round-trip is typically under 100ms —
+// resetting the instant it fires (the old behavior) gives the eased dot
+// animation (effect.ease, 0.12-0.22 depending on mode) nowhere near enough
+// time to visibly react, so a tap read as a barely-perceptible flicker
+// instead of a real interaction. 300ms comfortably covers even blackhole's
+// slower two-stage settle (its own smoothPointer easing on top of the
+// per-dot ease) without feeling like a delay.
+const TOUCH_LINGER_MS = 300;
 
 // Resolves a CSS color string to RGBA by letting the canvas itself parse it
 // and reading the pixel back, rather than regexing the text — the minified
@@ -59,11 +68,13 @@ function parseDotColor(raw, fallback = FALLBACK_DOT_COLOR) {
  * takes effect immediately without a page reload.
  *
  * On touch devices, touch position stands in for pointer position: contact
- * (touchstart/pointerdown) nudges dots the same way a mouse hover would,
- * and lifting the finger (pointerup/pointercancel) eases them back, same
- * as the mouse leaving the window. Falls back to drawing the grid once and
- * never animating under prefers-reduced-motion, same as the rest of the
- * site's motion effects.
+ * (pointerdown) nudges dots the same way a mouse hover would, and lifting
+ * the finger (pointerup/pointercancel) eases them back after a short
+ * linger (TOUCH_LINGER_MS) rather than instantly — a plain tap is quick
+ * enough that resetting right away gave the eased animation no time to
+ * actually be seen. Falls back to drawing the grid once and never
+ * animating under prefers-reduced-motion, same as the rest of the site's
+ * motion effects.
  */
 export default function DotField({ effectName }) {
   const canvasRef = useRef(null);
@@ -88,6 +99,7 @@ export default function DotField({ effectName }) {
     let frameId = null;
     let running = true;
     let resizeTimer = null;
+    let releaseTimer = null;
     const pointer = { x: -9999, y: -9999 };
     // Blackhole derives both a distance AND a swirl angle from the pointer
     // every frame (see cursorEffects.js) — fed the raw, un-smoothed pointer,
@@ -222,6 +234,24 @@ export default function DotField({ effectName }) {
       pointer.y = -9999;
     }
 
+    // A fresh touch always cancels any pending release from a previous tap
+    // first, so tapping a new spot while an earlier tap's linger is still
+    // running re-arms cleanly — no stacked timers, no stale reset landing
+    // late and yanking dots back out from under the newer touch.
+    function handleTouchStart(e) {
+      clearTimeout(releaseTimer);
+      releaseTimer = null;
+      handlePointerMove(e);
+    }
+
+    function handleTouchRelease() {
+      clearTimeout(releaseTimer);
+      releaseTimer = setTimeout(() => {
+        handlePointerLeave();
+        releaseTimer = null;
+      }, TOUCH_LINGER_MS);
+    }
+
     function handleResize() {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
@@ -251,10 +281,11 @@ export default function DotField({ effectName }) {
       // pointermove alone covers a dragging finger, but a plain tap fires
       // no pointermove at all — pointerdown carries that first contact
       // position instead. pointerup/pointercancel is touch's equivalent of
-      // the mouse leaving the window, so dots ease back the same way.
-      window.addEventListener("pointerdown", handlePointerMove, { passive: true });
-      window.addEventListener("pointerup", handlePointerLeave, { passive: true });
-      window.addEventListener("pointercancel", handlePointerLeave, { passive: true });
+      // the mouse leaving the window, so dots ease back the same way, just
+      // after a short linger (see TOUCH_LINGER_MS) instead of instantly.
+      window.addEventListener("pointerdown", handleTouchStart, { passive: true });
+      window.addEventListener("pointerup", handleTouchRelease, { passive: true });
+      window.addEventListener("pointercancel", handleTouchRelease, { passive: true });
     }
     window.addEventListener("resize", handleResize);
     document.addEventListener("visibilitychange", handleVisibility);
@@ -263,12 +294,13 @@ export default function DotField({ effectName }) {
       running = false;
       if (frameId) cancelAnimationFrame(frameId);
       clearTimeout(resizeTimer);
+      clearTimeout(releaseTimer);
       themeObserver.disconnect();
       window.removeEventListener("pointermove", handlePointerMove);
       document.removeEventListener("mouseleave", handlePointerLeave);
-      window.removeEventListener("pointerdown", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerLeave);
-      window.removeEventListener("pointercancel", handlePointerLeave);
+      window.removeEventListener("pointerdown", handleTouchStart);
+      window.removeEventListener("pointerup", handleTouchRelease);
+      window.removeEventListener("pointercancel", handleTouchRelease);
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
