@@ -13,8 +13,15 @@ const NAV_LINKS = [
   { id: "contact", label: "/contact" },
 ];
 
-export default function Navbar() {
+// "Prince Mathur" -> ["prince", "mathur"], rendered as prince@mathur.
+function brandParts(name) {
+  const words = name.trim().split(/\s+/);
+  return [words[0].toLowerCase(), words[words.length - 1].toLowerCase()];
+}
+
+export default function Navbar({ profile }) {
   const activeId = useActiveSection(NAV_LINKS.map((link) => link.id));
+  const [first, last] = brandParts(profile.name);
 
   return (
     <nav className="navbar">
@@ -27,7 +34,9 @@ export default function Navbar() {
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         >
-          prince<span>@</span>mathur
+          {first}
+          <span>@</span>
+          {last}
         </a>
         <div className="navbar__right">
           <div className="navbar__links">

@@ -25,19 +25,68 @@
    "tubes"; see components/ui/TubesCursor.jsx. This wrapper is what gives
    the canvas inside it a real, viewport-sized parent to measure — the
    library sizes its renderer off canvas.parentElement, not the canvas's
-   own styles. */
+   own styles. It also carries the theme's own --color-bg as an explicit
+   painted background (see the canvas rule below for why that's load-
+   bearing, not decorative). */
 .tubes-cursor {
   position: fixed;
   inset: 0;
   z-index: -2;
   overflow: hidden;
   pointer-events: none;
+  background: var(--color-bg);
 }
 
+/* The library (threejs-components' tubes1 bundle) runs a bloom
+   post-process by default, which composites to an opaque black backdrop
+   regardless of the WebGLRenderer's own alpha:true support — confirmed by
+   inspecting its source (the `bloom` option is truthy by default, and
+   enabling it swaps in a PostProcessing output node instead of the plain
+   renderer.render() call). That's invisible on the dark theme (already a
+   near-black page) but shows up as a solid black rectangle on light theme.
+   Disabling bloom would fix the transparency but also remove the tubes'
+   glow, which is the actual point of the effect. mix-blend-mode: screen
+   sidesteps that trade-off instead of fighting the library's internals:
+   screen(black, backdrop) = backdrop exactly (mathematically, screening a
+   pure black pixel against anything just returns that anything unchanged),
+   so wherever the canvas is only rendering its black backdrop, whatever's
+   behind it shows through untouched instead — while the lit tubes/bloom
+   glow (anything brighter than black) still shows normally, screen-
+   blended on top. That "whatever's behind it" is exactly why .tubes-cursor
+   above needs its own explicit --color-bg: mix-blend-mode blends against
+   painted content within the same stacking context, not simply whatever's
+   visually behind the element on screen — with no background painted
+   there (the previous state of that rule), the canvas had nothing
+   reliable to blend against, so screen-blending it effectively did
+   nothing and the opaque black kept showing through as-is. */
 .tubes-cursor canvas {
   display: block;
   width: 100%;
   height: 100%;
+  mix-blend-mode: screen;
+}
+
+/* screen(source, backdrop) = 1 - (1-source)(1-backdrop) — against dark
+   theme's near-black backdrop that correctly reveals bright colors and
+   collapses black to "no-op", but against light theme's near-white
+   backdrop the formula is dominated by the backdrop no matter what the
+   source is (screening literally anything onto near-white stays near-
+   white), so darkening the tube colors (see TubesCursor.jsx's *_LIGHT
+   palettes) couldn't fix it — the blend mode itself can't produce a
+   result darker than the backdrop, full stop, regardless of source color.
+   Light theme instead gets real per-pixel alpha via an SVG luminance-to-
+   alpha filter (#tubes-light-alpha, defined in TubesCursor.jsx) — it
+   passes color through unchanged but derives a fresh alpha channel from
+   each pixel's brightness, so black canvas pixels become genuinely
+   transparent (revealing .tubes-cursor's --color-bg beneath, via normal
+   compositing) while the lit tubes stay opaque and keep their real color,
+   with no backdrop-brightness dependency at all. mix-blend-mode resets to
+   the default (normal) since blending on top of real transparency would
+   just reintroduce the same brightness-dependent problem. Dark theme is
+   untouched — it already works correctly via screen above. */
+:root[data-theme="light"] .tubes-cursor canvas {
+  mix-blend-mode: normal;
+  filter: url(#tubes-light-alpha);
 }
 
 /* ---------- Cursor-follow glow ----------
@@ -56,6 +105,52 @@
     var(--glow-color) 100%
   );
   transition: background 0.05s linear, background-color 0.3s var(--ease-standard);
+}
+
+/* Blackhole mode inverts the vignette to match: instead of the cursor spot
+   staying clear and the page darkening away from it, the cursor itself is
+   the thing being pulled into — fully black at the center, fading out to
+   fully transparent (not the lighter var(--glow-color) edge above) at the
+   radius, gradually darkening the closer you get to the pointer. Dropped
+   below .dot-field's z-index (instead of above it, like the default
+   .page-glow) so this only darkens the empty space between dots — the
+   dots themselves stay drawn on top and stay visible even at the center.
+   Dark theme only — light theme's "white hole" override is below. */
+.page-glow--blackhole {
+  z-index: -3;
+  background: radial-gradient(
+    var(--page-glow-radius, 260px) circle at var(--pointer-x, 50vw) var(--pointer-y, 20vh),
+    black 0%,
+    transparent 100%
+  );
+}
+
+/* Same z-index (-3, behind .dot-field — this only ever paints the empty
+   gaps between dots, never covering them) and same --page-glow-radius as
+   dark theme's version above, so the effect's reach is identical in both
+   themes. Where this differs from dark theme's is the *last* stop: dark
+   theme's ends at `transparent`, and so does every OTHER light-theme
+   effect's default .page-glow at its *first* stop (transparent 0%,
+   var(--glow-color) 100% — see the plain .page-glow rule up top) — but
+   since the radius is much smaller than the viewport, a gradient's last
+   stop extends indefinitely past it, so effects other than blackhole
+   still wash nearly the entire light-theme page in --glow-color at rest.
+   Ending this one at `transparent` instead of `var(--glow-color)` (an
+   earlier version of this rule did that) skipped that same ambient wash,
+   which is what made blackhole read as lighter/closer to white than every
+   other light-theme effect — ending on var(--glow-color) here instead
+   matches that ambient wash exactly, so only the small white glow right
+   at the pointer is unique to this mode, not the whole page's base tone.
+   (This same "transparent vs. glow-color" gap technically exists in dark
+   theme's version too, it's just imperceptible there — --glow-color is a
+   near-black, low-opacity tint that barely registers against an
+   already-dark page, so there was nothing to fix on that side.) */
+:root[data-theme="light"] .page-glow--blackhole {
+  background: radial-gradient(
+    var(--page-glow-radius, 260px) circle at var(--pointer-x, 50vw) var(--pointer-y, 20vh),
+    white 0%,
+    var(--glow-color) 100%
+  );
 }
 
 /* ---------- Card hover ----------

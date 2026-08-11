@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { getProfile } from "./services/contentService.js";
 import { FilterProvider } from "./context/FilterContext.jsx";
 import { usePointerGlow } from "./hooks/usePointerGlow.js";
-import { CURSOR_EFFECT, PAGE_GLOW_RADIUS } from "./config/cursorEffect.js";
+import { useDocumentMeta } from "./hooks/useDocumentMeta.js";
+import { useCursorEffect } from "./hooks/useCursorEffect.js";
+import { PAGE_GLOW_RADIUS } from "./config/cursorEffect.js";
 
 import Navbar from "./components/layout/Navbar.jsx";
 import Footer from "./components/layout/Footer.jsx";
@@ -20,6 +22,8 @@ import Contact from "./components/sections/Contact.jsx";
 export default function App() {
   const [profile, setProfile] = useState(null);
   usePointerGlow();
+  useDocumentMeta(profile);
+  const { cursorEffect, setCursorEffect } = useCursorEffect();
 
   useEffect(() => {
     getProfile().then(setProfile);
@@ -27,16 +31,20 @@ export default function App() {
 
   if (!profile) return null;
 
-  let backgroundEffect = <DotField />;
-  if (CURSOR_EFFECT === "none") backgroundEffect = <div className="dot-grid" aria-hidden="true" />;
-  else if (CURSOR_EFFECT === "tubes") backgroundEffect = <TubesCursor />;
+  let backgroundEffect = <DotField effectName={cursorEffect} />;
+  if (cursorEffect === "tubes") backgroundEffect = <TubesCursor />;
+  else if (cursorEffect === "none") backgroundEffect = <div className="dot-grid" aria-hidden="true" />;
 
   return (
     <FilterProvider>
       {backgroundEffect}
-      <div className="page-glow" style={{ "--page-glow-radius": `${PAGE_GLOW_RADIUS}px` }} aria-hidden="true" />
+      <div
+        className={`page-glow${cursorEffect === "blackhole" ? " page-glow--blackhole" : ""}`}
+        style={{ "--page-glow-radius": `${PAGE_GLOW_RADIUS}px` }}
+        aria-hidden="true"
+      />
 
-      <Navbar />
+      <Navbar profile={profile} />
       <Hero profile={profile} />
       <About profile={profile} />
       <SkillsBar />
@@ -44,7 +52,7 @@ export default function App() {
       <Projects />
       <Education />
       <Contact profile={profile} />
-      <Footer profile={profile} />
+      <Footer profile={profile} cursorEffect={cursorEffect} setCursorEffect={setCursorEffect} />
 
       <FloatingFilterBar />
     </FilterProvider>

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import { CURSOR_EFFECT } from "../../config/cursorEffect.js";
 import { CURSOR_EFFECTS } from "../../utils/cursorEffects.js";
 import { hexToRgbTuple } from "../../utils/skillColor.js";
 
@@ -16,6 +15,7 @@ colorProbe.width = 1;
 colorProbe.height = 1;
 const colorProbeCtx = colorProbe.getContext("2d");
 const FALLBACK_DOT_COLOR = { r: 154, g: 164, b: 178, a: 0.28 };
+const WHITE_HOLE_PEAK = { r: 255, g: 255, b: 255 };
 
 // A canvas silently ignores an invalid fillStyle assignment and keeps
 // whatever was set before it — so if `raw` is ever empty/unparseable (e.g.
@@ -46,9 +46,17 @@ function parseDotColor(raw, fallback = FALLBACK_DOT_COLOR) {
 
 /**
  * Canvas replacement for the static .dot-grid background, used whenever
- * config/cursorEffect.js picks an interactive mode. Renders the same
- * dot-grid look at rest, but each frame nudges dots near the pointer
- * according to the active effect's physics (see utils/cursorEffects.js).
+ * the active cursor effect (either the CURSOR_EFFECT default in
+ * config/cursorEffect.js, or whatever the footer's cursor-effect easter
+ * egg has switched to — see hooks/useCursorEffect.js) is an interactive
+ * mode.
+ * Renders the same dot-grid look at rest, but each frame nudges dots near
+ * the pointer according to the active effect's physics (see
+ * utils/cursorEffects.js).
+ *
+ * Re-runs its whole setup (rebuilding the grid, restarting the animation
+ * loop) whenever `effectName` changes, so switching effects via the toggle
+ * takes effect immediately without a page reload.
  *
  * On touch devices, touch position stands in for pointer position: contact
  * (touchstart/pointerdown) nudges dots the same way a mouse hover would,
@@ -57,11 +65,11 @@ function parseDotColor(raw, fallback = FALLBACK_DOT_COLOR) {
  * never animating under prefers-reduced-motion, same as the rest of the
  * site's motion effects.
  */
-export default function DotField() {
+export default function DotField({ effectName }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    const effect = CURSOR_EFFECTS[CURSOR_EFFECT];
+    const effect = CURSOR_EFFECTS[effectName];
     if (!effect) return;
 
     const canvas = canvasRef.current;
@@ -71,7 +79,8 @@ export default function DotField() {
     const hasHover = window.matchMedia("(hover: hover)").matches;
     const hasTouch = window.matchMedia("(pointer: coarse)").matches;
     const interactive = !reducedMotion && (hasHover || hasTouch);
-    const isConstellation = CURSOR_EFFECT === "constellation";
+    const isConstellation = effectName === "constellation";
+    const isBlackhole = effectName === "blackhole";
 
     let dots = [];
     let width = 0;
@@ -80,13 +89,35 @@ export default function DotField() {
     let running = true;
     let resizeTimer = null;
     const pointer = { x: -9999, y: -9999 };
+    // Blackhole derives both a distance AND a swirl angle from the pointer
+    // every frame (see cursorEffects.js) — fed the raw, un-smoothed pointer,
+    // fast mouse movement makes that angle jump between frames (the "center"
+    // the swirl is measured from teleports along with the raw input), which
+    // reads as dots scattering haphazardly instead of orbiting smoothly.
+    // Easing a lagged copy of the pointer and physics-ing off that instead
+    // keeps the reference point itself moving smoothly, so the swirl stays
+    // stable during fast cursor movement. Other modes are unaffected.
+    const smoothPointer = { x: -9999, y: -9999 };
 
-    let dotColor = parseDotColor(getComputedStyle(document.documentElement).getPropertyValue("--dot-color"));
+    // Blackhole's page-glow vignette darkens toward the cursor instead of
+    // away from it (see .page-glow--blackhole in effects.css), so resting
+    // dots read from --dot-color-blackhole instead — brighter on dark
+    // theme, darker on light theme (see the token comments in tokens.css).
+    const dotColorProperty = isBlackhole ? "--dot-color-blackhole" : "--dot-color";
+
+    let dotColor = parseDotColor(getComputedStyle(document.documentElement).getPropertyValue(dotColorProperty));
     let accentRgb = hexToRgbTuple(getComputedStyle(document.documentElement).getPropertyValue("--color-teal") || "#59c3b4");
+    // Blackhole is a "white hole" on light theme: dots blend toward white
+    // and full opacity near the pointer instead of dimming toward the
+    // background, since a literal black-hole-style dim-and-shrink would
+    // just fade dots into an already-light page instead of reading as a
+    // glow. Re-checked on every theme toggle alongside dotColor/accentRgb.
+    let isWhiteHole = isBlackhole && document.documentElement.getAttribute("data-theme") === "light";
 
     const themeObserver = new MutationObserver(() => {
-      dotColor = parseDotColor(getComputedStyle(document.documentElement).getPropertyValue("--dot-color"), dotColor);
+      dotColor = parseDotColor(getComputedStyle(document.documentElement).getPropertyValue(dotColorProperty), dotColor);
       accentRgb = hexToRgbTuple(getComputedStyle(document.documentElement).getPropertyValue("--color-teal") || "#59c3b4");
+      isWhiteHole = isBlackhole && document.documentElement.getAttribute("data-theme") === "light";
     });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
@@ -115,10 +146,16 @@ export default function DotField() {
 
       const lines = isConstellation ? [] : null;
 
+      if (isBlackhole) {
+        smoothPointer.x += (pointer.x - smoothPointer.x) * 0.12;
+        smoothPointer.y += (pointer.y - smoothPointer.y) * 0.12;
+      }
+      const activePointer = isBlackhole ? smoothPointer : pointer;
+
       for (let i = 0; i < dots.length; i += 1) {
         const dot = dots[i];
         let result = null;
-        if (interactive) result = effect.compute(dot, pointer, effect.radius, time);
+        if (interactive) result = effect.compute(dot, activePointer, effect.radius, time);
 
         const targetOffsetX = result ? result.offsetX : 0;
         const targetOffsetY = result ? result.offsetY : 0;
@@ -131,10 +168,28 @@ export default function DotField() {
         dot.alpha += (targetAlpha - dot.alpha) * effect.ease;
 
         const r = Math.max(0.15, DOT_RADIUS * dot.scale);
-        const a = Math.min(1, Math.max(0, dot.alpha)) * dotColor.a;
+        const alpha = Math.min(1, Math.max(0, dot.alpha));
+
+        let fillR = dotColor.r;
+        let fillG = dotColor.g;
+        let fillB = dotColor.b;
+        let a = alpha * dotColor.a;
+
+        if (isWhiteHole) {
+          // dot.alpha already eases from 1 (idle) down to blackhole's floor
+          // of 0.2 (right at the pointer) — reusing that as the blend
+          // factor means the color brightens in step with the same
+          // smoothed motion driving position/scale, no separate easing
+          // needed. closeness: 0 at rest, 1 at the pointer.
+          const closeness = Math.min(1, Math.max(0, (1 - alpha) / 0.8));
+          fillR = dotColor.r + (WHITE_HOLE_PEAK.r - dotColor.r) * closeness;
+          fillG = dotColor.g + (WHITE_HOLE_PEAK.g - dotColor.g) * closeness;
+          fillB = dotColor.b + (WHITE_HOLE_PEAK.b - dotColor.b) * closeness;
+          a = Math.min(1, dotColor.a + (1 - dotColor.a) * closeness);
+        }
 
         ctx.beginPath();
-        ctx.fillStyle = `rgba(${dotColor.r}, ${dotColor.g}, ${dotColor.b}, ${a})`;
+        ctx.fillStyle = `rgba(${fillR}, ${fillG}, ${fillB}, ${a})`;
         ctx.arc(dot.x, dot.y, r, 0, Math.PI * 2);
         ctx.fill();
 
@@ -217,7 +272,7 @@ export default function DotField() {
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, []);
+  }, [effectName]);
 
   return <canvas ref={canvasRef} className="dot-field" aria-hidden="true" />;
 }

@@ -1,5 +1,6 @@
 import React from "react";
 import Icon from "../ui/Icon.jsx";
+import CursorEffectToggle from "../ui/CursorEffectToggle.jsx";
 
 /**
  * Each footer link gets its own fixed accent color (not the deterministic
@@ -14,12 +15,13 @@ function footerLinks(profile) {
   ];
 }
 
-export default function Footer({ profile }) {
+export default function Footer({ profile, cursorEffect, setCursorEffect }) {
   const year = new Date().getFullYear();
   return (
     <footer className="footer">
       <span className="footer__copyright">
-        built by {profile.name} &middot; {year}
+        built by {profile.name} &middot; {year}{" "}
+        <CursorEffectToggle cursorEffect={cursorEffect} setCursorEffect={setCursorEffect} />
       </span>
       <div className="footer__links">
         {footerLinks(profile).map((link) => (

@@ -39,6 +39,17 @@
   --glow-color: rgba(2, 4, 7, 0.55);
   --shadow-color: rgba(0, 0, 0, 0.45);
 
+  /* Blackhole mode's resting (non-hovered) dot color, read instead of
+     --dot-color by DotField.jsx when the active effect is "blackhole".
+     Brighter than the default resting dots on dark theme, since the
+     page-glow vignette in that mode now darkens toward the cursor instead
+     of away from it (see .page-glow--blackhole in effects.css) — dots
+     need the extra headroom to still read clearly against that. Pulled
+     back a bit from an earlier, higher value so the contrast is a touch
+     less loud. (Light theme's own darker equivalent, for its inverted
+     "white hole" take on this mode, lives in the block below.) */
+  --dot-color-blackhole: rgba(175, 185, 200, 0.36);
+
   /* Peak color for the hero availability dot's blink (.hero__status-dot) —
      brighter than the resting teal on the dark theme's dark backdrop,
      since going darker there would just fade into the background. */
@@ -87,6 +98,17 @@
   --dot-color: rgba(23, 27, 36, 0.19);
   --glow-color: rgba(120, 130, 150, 0.16);
   --shadow-color: rgba(23, 27, 36, 0.12);
+
+  /* Blackhole becomes a "white hole" on light theme (see DotField.jsx's
+     isWhiteHole handling — dots blend toward white and full opacity near
+     the pointer instead of dimming) — the resting/idle dots away from any
+     pointer read a bit darker than the normal default for that brightening
+     to land as a contrast, not more opaque like dark theme's version
+     above, since going lighter here would just wash out against the
+     already-light page. Kept fairly modest (not too far past the normal
+     0.19) so the dots stay a background detail, not the loudest thing on
+     the page. */
+  --dot-color-blackhole: rgba(23, 27, 36, 0.23);
 
   /* On the light theme's bright backdrop, a brighter teal would wash out —
      going darker instead is what actually reads as a stronger pulse. */
