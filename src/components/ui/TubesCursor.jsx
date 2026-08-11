@@ -11,6 +11,19 @@ import React, { useEffect, useRef } from "react";
  * Licence: CC BY-NC-SA 4.0 (Attribution, Non-Commercial, Share-Alike) —
  * keep the attribution above if this stays active, and don't enable it on
  * anything commercial.
+ *
+ * Touch: no wrapper code needed here — inspected the actual CDN bundle
+ * directly (downloaded tubes1.min.js and grepped it) and confirmed the
+ * library attaches its own `pointermove`/`pointerleave`/`click` listeners
+ * on `document.body`. Pointer Events fire for touch drags in all modern
+ * mobile browsers, so a dragging finger already drives the trail through
+ * that same native listener — which is this effect's primary, most
+ * natural touch gesture anyway (a full-viewport WebGL trail is inherently
+ * a "sweep your finger across the screen" thing). There's no
+ * `pointerdown`/`touchstart` handler in the bundle, so a static tap with
+ * no drag has no effect — deliberately left alone rather than bolting a
+ * synthetic pointerdown->pointermove bridge into third-party minified,
+ * version-pinned code for a secondary gesture.
  */
 const TUBES_CDN_URL = "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js";
 
