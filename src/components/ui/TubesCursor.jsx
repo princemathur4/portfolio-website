@@ -11,27 +11,33 @@ import React, { useEffect, useRef } from "react";
  * Licence: CC BY-NC-SA 4.0 (Attribution, Non-Commercial, Share-Alike) —
  * keep the attribution above if this stays active, and don't enable it on
  * anything commercial.
+ *
+ * Touch: no wrapper code needed here — inspected the actual CDN bundle
+ * directly (downloaded tubes1.min.js and grepped it) and confirmed the
+ * library attaches its own `pointermove`/`pointerleave`/`click` listeners
+ * on `document.body`. Pointer Events fire for touch drags in all modern
+ * mobile browsers, so a dragging finger already drives the trail through
+ * that same native listener — which is this effect's primary, most
+ * natural touch gesture anyway (a full-viewport WebGL trail is inherently
+ * a "sweep your finger across the screen" thing). There's no
+ * `pointerdown`/`touchstart` handler in the bundle, so a static tap with
+ * no drag has no effect — deliberately left alone rather than bolting a
+ * synthetic pointerdown->pointermove bridge into third-party minified,
+ * version-pinned code for a secondary gesture.
  */
 const TUBES_CDN_URL = "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js";
 
 // On-brand palette instead of the demo's neon defaults, so the effect
 // reads as part of this site rather than a generic tech-demo background.
-// Dark theme only — light theme's own, deliberately darker palette is
-// below (see the comment there for why it can't just reuse this one).
-const TUBE_COLORS_DARK = ["#e8b24d", "#59c3b4", "#b79ced"];
-const LIGHT_COLORS_DARK = ["#e8b24d", "#59c3b4", "#7fc4e8", "#e88c8c"];
-
-// The canvas is screen-blended onto the page (.tubes-cursor canvas in
-// effects.css) so the library's opaque black backdrop disappears against
-// either theme's --color-bg. Screen blending only ever lightens the
-// result relative to whatever's behind it, though — it can't darken — so
-// the dark theme's bright/neon palette above, screened onto light theme's
-// near-white page, washes out to barely-visible pastels. These are the
-// same hues pulled noticeably darker/more saturated (two of them reused
-// directly from tokens.css's own light-theme --color-teal/--color-violet)
-// so there's still visible color left after screening lightens them.
-const TUBE_COLORS_LIGHT = ["#a3721b", "#1f8f7d", "#7c3aed"];
-const LIGHT_COLORS_LIGHT = ["#a3721b", "#1f8f7d", "#2f6a91", "#a8433f"];
+// Same colors for both themes — a darker/less-saturated light-theme
+// variant was tried and looked worse (screenshotted both side by side to
+// check): with the transparency handled by a proper per-pixel alpha
+// filter now (see #tubes-light-alpha in effects.css) rather than a blend
+// mode, there's no "washes out against white" failure mode left to design
+// around, and the darker palette just made the trail read as a duller,
+// lower-contrast smudge for no benefit.
+const TUBE_COLORS = ["#e8b24d", "#59c3b4", "#b79ced"];
+const LIGHT_COLORS = ["#e8b24d", "#59c3b4", "#7fc4e8", "#e88c8c"];
 
 function supportsWebGL2() {
   try {
@@ -40,13 +46,6 @@ function supportsWebGL2() {
   } catch {
     return false;
   }
-}
-
-function getTubePalette() {
-  const isLight = document.documentElement.getAttribute("data-theme") === "light";
-  return isLight
-    ? { colors: TUBE_COLORS_LIGHT, lightColors: LIGHT_COLORS_LIGHT }
-    : { colors: TUBE_COLORS_DARK, lightColors: LIGHT_COLORS_DARK };
 }
 
 export default function TubesCursor() {
@@ -64,38 +63,21 @@ export default function TubesCursor() {
 
     let cancelled = false;
     let appInstance = null;
-    let tubesModule = null;
 
     function handleResize() {
       appInstance?.three?.resize?.();
     }
 
-    function destroyInstance() {
-      if (!appInstance) return;
-      if (typeof appInstance.destroy === "function") appInstance.destroy();
-      else if (typeof appInstance.dispose === "function") appInstance.dispose();
-      else if (appInstance.renderer && typeof appInstance.renderer.dispose === "function") {
-        appInstance.renderer.dispose();
-      }
-      appInstance = null;
-    }
-
-    function createInstance() {
-      if (!canvasRef.current) return;
-      const { colors, lightColors } = getTubePalette();
-      appInstance = tubesModule.default(canvasRef.current, {
-        tubes: {
-          colors,
-          lights: { intensity: 200, colors: lightColors },
-        },
-      });
-    }
-
     import(/* @vite-ignore */ TUBES_CDN_URL)
       .then((mod) => {
         if (cancelled || !canvasRef.current) return;
-        tubesModule = mod;
-        createInstance();
+        const initTubesCursor = mod.default;
+        appInstance = initTubesCursor(canvasRef.current, {
+          tubes: {
+            colors: TUBE_COLORS,
+            lights: { intensity: 200, colors: LIGHT_COLORS },
+          },
+        });
         window.addEventListener("resize", handleResize);
       })
       .catch((err) => {
@@ -105,24 +87,15 @@ export default function TubesCursor() {
         console.warn("Tubes cursor effect failed to load; leaving background empty.", err);
       });
 
-    // The library has no documented API for swapping an already-running
-    // instance's colors, so a theme toggle while tubes is active tears
-    // down and re-creates it with the other theme's palette instead —
-    // same "re-init from scratch on theme change" approach DotField.jsx
-    // uses for its own colors, just via destroy+recreate instead of a
-    // cheap re-read, since this one's a full WebGL scene.
-    const themeObserver = new MutationObserver(() => {
-      if (!tubesModule) return;
-      destroyInstance();
-      createInstance();
-    });
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-
     return () => {
       cancelled = true;
-      themeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
-      destroyInstance();
+      if (!appInstance) return;
+      if (typeof appInstance.destroy === "function") appInstance.destroy();
+      else if (typeof appInstance.dispose === "function") appInstance.dispose();
+      else if (appInstance.renderer && typeof appInstance.renderer.dispose === "function") {
+        appInstance.renderer.dispose();
+      }
     };
   }, []);
 
