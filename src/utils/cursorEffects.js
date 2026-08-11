@@ -77,6 +77,31 @@ function blackhole(dot, pointer, radius, time) {
   };
 }
 
+// No displacement at all — the grid stays exactly where it is, "sonar
+// ping" style. `alpha` deliberately overshoots past 1 (like repel/attract
+// already do) — DotField.jsx reads that overshoot as its blend-toward-
+// accent-teal "closeness" signal (see isGridPulse there), the same trick
+// isWhiteHole uses in the other direction, so the lit-up look rides the
+// same eased channel driving everything else instead of needing separate
+// per-dot state. The small scale bump makes the lit dots read as slightly
+// bigger too, not just recolored.
+function gridPulse(dot, pointer, radius) {
+  const dx = dot.baseX - pointer.x;
+  const dy = dot.baseY - pointer.y;
+  const dist = Math.hypot(dx, dy);
+  if (dist >= radius) return IDLE;
+
+  const strength = 1 - dist / radius;
+  return {
+    offsetX: 0,
+    offsetY: 0,
+    scale: 1 + strength * GRID_PULSE_SCALE_BOOST,
+    alpha: 1 + strength,
+    inRange: true,
+    strength,
+  };
+}
+
 function constellation(dot, pointer, radius) {
   const dx = pointer.x - dot.baseX;
   const dy = pointer.y - dot.baseY;
@@ -103,9 +128,15 @@ function constellation(dot, pointer, radius) {
 // path with its own bloom settings, not part of this registry at all.
 const GLOW_RADIUS = 200;
 
+// Deliberately smaller and tighter than GLOW_RADIUS — a "soft 120px circle"
+// sonar-ping footprint, not the same wide glow the other modes share.
+const GRID_PULSE_RADIUS = 120;
+const GRID_PULSE_SCALE_BOOST = 0.5;
+
 export const CURSOR_EFFECTS = {
   repel: { radius: GLOW_RADIUS, ease: 0.18, compute: repel },
   attract: { radius: GLOW_RADIUS, ease: 0.18, compute: attract },
   blackhole: { radius: GLOW_RADIUS, ease: 0.12, compute: blackhole },
   constellation: { radius: GLOW_RADIUS, ease: 0.22, compute: constellation },
+  gridpulse: { radius: GRID_PULSE_RADIUS, ease: 0.16, compute: gridPulse },
 };

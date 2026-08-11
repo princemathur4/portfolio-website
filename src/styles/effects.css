@@ -153,6 +153,57 @@
   );
 }
 
+/* ---------- Crosshair HUD ----------
+   CAD/engineering-measurement look rather than a decorative glow: two
+   thin full-viewport lines crossing at the pointer, plus a coordinate
+   readout (see CrosshairHUD.jsx, which writes position via transform on
+   these refs directly rather than React state/re-render). Sits above the
+   static .dot-grid this mode pairs with (z-index -2) but below the
+   fixed nav/footer chrome (45/50), so it reads as an overlay on the page
+   content without competing with real UI. Hidden by default (each piece
+   starts display:none) until the first pointermove positions and reveals
+   it — otherwise they'd sit stacked at the top-left corner pre-JS. */
+.crosshair-hud {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.crosshair-hud__line {
+  position: fixed;
+  display: none;
+  top: 0;
+  left: 0;
+  background: var(--color-teal);
+  opacity: 0.45;
+}
+
+.crosshair-hud__line--h {
+  width: 100%;
+  height: 1px;
+}
+
+.crosshair-hud__line--v {
+  width: 1px;
+  height: 100%;
+}
+
+.crosshair-hud__coords {
+  position: fixed;
+  display: none;
+  top: 0;
+  left: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  white-space: nowrap;
+  color: var(--color-teal);
+  background: var(--color-bg-translucent);
+  border: 1px solid var(--color-teal);
+  border-radius: var(--radius-sm);
+  padding: 3px 7px;
+}
+
 /* ---------- Card hover ----------
    A plain lift + border highlight + background swap, no cursor tracking
    — a mouse-following darken spotlight here read as an odd smudge rather

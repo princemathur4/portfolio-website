@@ -90,6 +90,7 @@ export default function DotField({ effectName }) {
     const interactive = !reducedMotion && (hasHover || hasTouch);
     const isConstellation = effectName === "constellation";
     const isBlackhole = effectName === "blackhole";
+    const isGridPulse = effectName === "gridpulse";
 
     let dots = [];
     let width = 0;
@@ -194,6 +195,17 @@ export default function DotField({ effectName }) {
           fillR = dotColor.r + (WHITE_HOLE_PEAK.r - dotColor.r) * closeness;
           fillG = dotColor.g + (WHITE_HOLE_PEAK.g - dotColor.g) * closeness;
           fillB = dotColor.b + (WHITE_HOLE_PEAK.b - dotColor.b) * closeness;
+          a = Math.min(1, dotColor.a + (1 - dotColor.a) * closeness);
+        } else if (isGridPulse) {
+          // gridPulse's alpha target overshoots past 1 as strength rises
+          // (see cursorEffects.js) instead of shrinking below it like
+          // blackhole's — dot.alpha (unclamped, unlike the `alpha` local
+          // above) reads that overshoot directly as closeness: 0 at rest,
+          // 1 right at the pointer.
+          const closeness = Math.min(1, Math.max(0, dot.alpha - 1));
+          fillR = dotColor.r + (accentRgb[0] - dotColor.r) * closeness;
+          fillG = dotColor.g + (accentRgb[1] - dotColor.g) * closeness;
+          fillB = dotColor.b + (accentRgb[2] - dotColor.b) * closeness;
           a = Math.min(1, dotColor.a + (1 - dotColor.a) * closeness);
         }
 
