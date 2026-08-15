@@ -158,7 +158,7 @@ const experience = [
       "Cursor",
       "LLM Integration",
       "REST API Design",
-      "Code Reviews"
+      "Code Reviews",
     ],
     builtProject: {
       name: "Scaler Neovarsity",
@@ -172,7 +172,7 @@ const experience = [
     id: "egregore",
     role: "Full Stack Developer, Level 2",
     company: "Egregore Labs",
-    companyUrl: "https://www.egregorelabs.com/",
+    companyUrl: "https://www.linkedin.com/company/egregore-labs/",
     location: "New Delhi, India (Hybrid)",
     dateRange: "Apr 2019 \u2013 Feb 2022",
     current: false,
