@@ -123,13 +123,16 @@
   color: var(--color-amber);
 }
 
-/* Hover-card preview, shows where a skill is used before you click it */
+/* Hover-card preview, shows where a skill is used before you click it.
+   Portaled to document.body and positioned in JS from the trigger tag's
+   actual on-screen position, clamped to the viewport (see Tag.jsx and
+   utils/tooltipPosition.js) rather than CSS-centered on the tag — tags
+   wrap across a full-width row and can sit anywhere along it, including
+   right against an edge, so a fixed-width card centered on an arbitrary
+   tag routinely ran past the screen edge on narrow viewports. */
 .skill-tag__card {
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 240px;
+  position: fixed;
+  width: min(240px, calc(100vw - 32px));
   background: var(--color-surface-alt);
   border: 1px solid var(--color-hairline);
   border-radius: var(--radius-md);

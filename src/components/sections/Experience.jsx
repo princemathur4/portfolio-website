@@ -1,22 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { getExperience, entryMatchesSkillFilters, entryMatchesSearch } from "../../services/contentService.js";
+import React from "react";
+import { getExperience } from "../../services/contentService.js";
 import { useFilters } from "../../context/FilterContext.jsx";
+import { useFilteredEntries } from "../../hooks/useFilteredEntries.js";
 import { useRevealOnScroll } from "../../hooks/useRevealOnScroll.js";
 import SectionHeading from "../ui/SectionHeading.jsx";
+import EmptyFilterState from "../ui/EmptyFilterState.jsx";
 import ExperienceCard from "./ExperienceCard.jsx";
 
 export default function Experience() {
-  const [jobs, setJobs] = useState([]);
-  const { activeSkills, searchQuery, clearFilters } = useFilters();
+  const visibleJobs = useFilteredEntries(getExperience, "experience");
+  const { clearFilters } = useFilters();
   const { ref, isVisible } = useRevealOnScroll();
-
-  useEffect(() => {
-    getExperience().then(setJobs);
-  }, []);
-
-  const visibleJobs = jobs.filter(
-    (job) => entryMatchesSkillFilters(job, activeSkills) && entryMatchesSearch(job, "experience", searchQuery)
-  );
 
   return (
     <section id="experience" className={`section reveal ${isVisible ? "is-visible" : ""}`.trim()} ref={ref}>
@@ -26,12 +20,7 @@ export default function Experience() {
           title="Where I've worked"
         />
         {visibleJobs.length === 0 ? (
-          <div className="empty-state">
-            <p>Nothing matches the current filters.</p>
-            <button type="button" className="btn btn-secondary" onClick={clearFilters}>
-              Clear filters
-            </button>
-          </div>
+          <EmptyFilterState onClear={clearFilters} />
         ) : (
           <div className="experience-list">
             {visibleJobs.map((job) => (

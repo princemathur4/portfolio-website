@@ -19,7 +19,7 @@ export default function Footer({ profile, cursorEffect, setCursorEffect }) {
   const year = new Date().getFullYear();
   return (
     <footer className="footer">
-      <span className="footer__copyright">
+      <span>
         built by {profile.name} &middot; {year}{" "}
         <CursorEffectToggle cursorEffect={cursorEffect} setCursorEffect={setCursorEffect} />
       </span>

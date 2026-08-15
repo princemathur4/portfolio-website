@@ -32,8 +32,8 @@ export default function ExperienceCard({ job }) {
         <p className="experience-card__summary">{job.summary}</p>
 
         <ul className="experience-card__bullets">
-          {visibleBullets.map((bullet, index) => (
-            <li key={index}>{highlightMatches(bullet.text, { searchQuery, activeSkills })}</li>
+          {visibleBullets.map((bullet) => (
+            <li key={bullet.text}>{highlightMatches(bullet.text, { searchQuery, activeSkills })}</li>
           ))}
         </ul>
 

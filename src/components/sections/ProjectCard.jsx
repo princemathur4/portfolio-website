@@ -34,8 +34,8 @@ export default function ProjectCard({ project }) {
       <p className="project-card__description">{highlightMatches(project.description, { searchQuery, activeSkills })}</p>
 
       <ul className="project-card__highlights">
-        {visibleHighlights.map((point, index) => (
-          <li key={index}>{highlightMatches(point.text, { searchQuery, activeSkills })}</li>
+        {visibleHighlights.map((point) => (
+          <li key={point.text}>{highlightMatches(point.text, { searchQuery, activeSkills })}</li>
         ))}
       </ul>
 
