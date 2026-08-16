@@ -26,22 +26,6 @@ npm run build
 This outputs a static site to `dist/`, which you can deploy anywhere that
 serves static files.
 
-## Before you ship this
-
-A few things were left as placeholders since they weren't available yet:
-
-- **Profile photo**: drop your headshot at `public/images/avatar.jpg`, then
-  set `hasPhoto: true` in `src/data/profile.js`. Until then, the hero shows
-  an initials mark instead.
-- **Social links**: `src/data/profile.js` → `social` has placeholder URLs
-  for LinkedIn and HackerRank. Swap in your real ones.
-- **Project media**: `src/data/projects.js` has `imagePath` / `videoUrl` /
-  `liveUrl` set to `null` for both projects. Add screenshots to
-  `public/images/` and point to them there, or leave as-is (a clean
-  placeholder renders automatically).
-- **Experience "built project" screenshots**: same idea, in
-  `src/data/experience.js` → each job's `builtProject.screenshotPath`.
-
 ## Project structure
 
 ```
@@ -177,6 +161,17 @@ keeps working unchanged.
   `projects.js` following the existing shape. Give it a unique `id`, it's
   used to build the anchor the skills bar scrolls to (`exp-<id>` /
   `proj-<id>`).
+
+## TODO
+
+A few things were left as placeholders since they weren't available yet in some cases:
+
+- **Project media**: `src/data/projects.js` has `imagePath` / `videoUrl` /
+  `liveUrl` set to `null` for some projects. Add screenshots to
+  `public/images/` and point to them there, or leave as-is (a clean
+  placeholder renders automatically).
+- **Experience "built project" screenshots**: same idea, in
+  `src/data/experience.js` → each job's `builtProject.screenshotPath`.
 
 ## Future scope this was built to support
 
