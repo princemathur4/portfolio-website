@@ -40,7 +40,7 @@ function attract(dot, pointer, radius) {
   if (dist >= radius) return IDLE;
 
   const strength = 1 - dist / radius;
-  const pull = strength * 26;
+  const pull = strength * 32;
   const safeDist = dist || 0.001;
   return {
     offsetX: (dx / safeDist) * pull,
@@ -126,17 +126,17 @@ function constellation(dot, pointer, radius) {
 // footprint, previously 150/150/190/170px and noticeably uneven between
 // modes). Doesn't apply to "tubes", which is a separate WebGL rendering
 // path with its own bloom settings, not part of this registry at all.
-const GLOW_RADIUS = 200;
+const EFFECT_RADIUS = 200;
 
-// Deliberately smaller and tighter than GLOW_RADIUS — a "soft 120px circle"
+// Deliberately smaller and tighter than EFFECT_RADIUS — a "soft 120px circle"
 // sonar-ping footprint, not the same wide glow the other modes share.
 const GRID_PULSE_RADIUS = 120;
 const GRID_PULSE_SCALE_BOOST = 0.5;
 
 export const CURSOR_EFFECTS = {
-  repel: { radius: GLOW_RADIUS, ease: 0.18, compute: repel },
-  attract: { radius: GLOW_RADIUS, ease: 0.18, compute: attract },
-  blackhole: { radius: GLOW_RADIUS, ease: 0.12, compute: blackhole },
-  constellation: { radius: GLOW_RADIUS, ease: 0.22, compute: constellation },
+  repel: { radius: EFFECT_RADIUS, ease: 0.18, compute: repel },
+  attract: { radius: EFFECT_RADIUS, ease: 0.18, compute: attract },
+  blackhole: { radius: EFFECT_RADIUS, ease: 0.12, compute: blackhole },
+  constellation: { radius: EFFECT_RADIUS, ease: 0.22, compute: constellation },
   gridpulse: { radius: GRID_PULSE_RADIUS, ease: 0.16, compute: gridPulse },
 };
